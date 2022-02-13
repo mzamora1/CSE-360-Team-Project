@@ -1,0 +1,81 @@
+This will explain the basics of git and the most common commands you will use 
+
+# Pull
+Command:
+git pull https://github.com/mzamora1/CSE-360-Team-Project.git main 
+
+This will merge the current state of the main branch with the local files you have on your computer
+Invoke this command every time you open the project before you start making changes OR after someone else has pushed changes to the repository
+
+
+# Add
+Command:
+git add .
+
+This will stage all files not excluded in .gitignore so they can be tracked for changes by git.
+This does not upload anything to GitHub.
+Invoke this command after you add or modify a new file to the project
+Files that need to be added will have a U on the right in vs-code
+Files that have already been added will have an A on the right in vs-code
+
+
+# Commit
+Command:
+git commit -m "message"
+
+This will prepare the tracked changes to be pushed to the remote repository.
+Essentially creates a snapshot of the files in the staging area and assigns hash key.
+This does not upload anything to GitHub.
+To remove this commit and modify the file, use 'git reset --soft HEAD~1' and commit and add the file again.
+Invoke this command before you push
+
+Command: 
+git commit -am "message"
+
+This automatically stages files that have been modified and deleted, but new files
+you have not told Git about are not affected.
+Invoke this command after you modify an already added file (ie. files with M on the right in vs-code)
+
+
+# Push
+Command:
+git push origin master:main
+
+This uploads the local branch master to the remote branch main on GitHub.
+
+If this command gives an error like this: `
+    fatal: 'origin' does not appear to be a git repository
+    fatal: Could not read from remote repository.
+
+    Please make sure you have the correct access rights
+    and the repository exists.
+`
+then you must add a new remote origin using git remote.
+Invoke after git commit.
+
+Command:
+git push origin main
+
+Use this push command if git --version > 2.25.1
+
+
+# Remote
+Command:
+git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
+
+This tells git where you want to upload your commits to. In this case we upload to our project repository.
+
+
+First time git setup:
+Commands:
+
+git pull https://github.com/mzamora1/CSE-360-Team-Project.git main
+
+(modify project somehow)
+
+git add .
+git commit -m "message"
+git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
+git push origin master:main
+
+
