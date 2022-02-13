@@ -66,10 +66,12 @@ git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
 This tells git where you want to upload your commits to. In this case we upload to our project repository.
 
 
-First time git setup:
+# First time git setup:
 Commands:
 
-git pull https://github.com/mzamora1/CSE-360-Team-Project.git main
+cd <path-on-your-computer>
+git clone https://github.com/mzamora1/CSE-360-Team-Project.git
+cd CSE-360-Team-Project
 
 (modify project somehow)
 
