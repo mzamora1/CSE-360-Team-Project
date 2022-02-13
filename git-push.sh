@@ -9,7 +9,7 @@ fi
 
 if [ ! -d $1/.git ]
 then
-    echo -e "ERROR: path does not point to a local repository"
+    echo -e "ERROR: path does not point to a local git repository"
     exit 1
 fi
 
@@ -20,7 +20,7 @@ then
 fi
 
 ORIGIN=$( git config --get remote.origin.url )
-echo "got remote origin: '$ORIGIN'"
+echo "current remote origin: '$ORIGIN'"
 
 if [ $ORIGIN != $'https://github.com/mzamora1/CSE-360-Team-Project.git' ]
 then
@@ -28,7 +28,8 @@ then
     git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
 fi
 
+git pull origin main && \
 git add $1 && echo "added: '$1'" && \
 git commit -m "$2" && echo "commited: $2" && \
-git push origin master:main
+git push origin master:main && echo "pushed to main branch"
 
