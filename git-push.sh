@@ -22,7 +22,7 @@ success() {
 }
 
 assert() {
-    echo $1
+    # echo $1
     if ! [ $1 ]
     then
         error "$2"
@@ -55,6 +55,7 @@ then
     echo "$( yellow 'adding remote origin' ): https://github.com/mzamora1/CSE-360-Team-Project.git"
     git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
 fi
+
 
 git pull origin main
 assert "$? -eq 0" "could be from conflicting merge between main branch and local repository" \
