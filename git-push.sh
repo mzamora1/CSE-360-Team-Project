@@ -61,7 +61,7 @@ git pull origin main
 assert "$? -eq 0" "could be from conflicting merge between main branch and local repository" \
 "Solution: use 'git mergetool' or 'git diff' to find and correct all merge conflicts." \
 "Solution: if you want to overwrite local conflicts with remote state use 'git pull --force origin main'" \
-"Solution: if you want to overwrite remote conflicts with local state use 'git push --force origin main'" \
+"Solution: if you want to overwrite remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin master:main'" \
 "Solution: Google how to resolve git merge conflicts"
 success "fetched and merged main branch"
 
