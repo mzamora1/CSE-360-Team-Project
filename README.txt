@@ -8,7 +8,7 @@ Requirements:
 
 -view the entire menu
 	-menu must have images of food items
-	-view ingredients of specified food item
+	-view ingredients of a specified food item
 	-ability to add and remove items from the menu
 
 -filter by food type(what "type" means determined by us)
@@ -30,6 +30,6 @@ Requirements:
 
 -Account creation availabe(not usre if account is required)
 	-way to save payment and contact info
-	-2 differnt types of account: admin and user-
+	-2 different types of account: admin and user-
 
 -must be a way to cancel a placed order
