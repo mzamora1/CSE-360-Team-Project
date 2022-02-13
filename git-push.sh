@@ -51,10 +51,10 @@ then
 fi
 
 git pull origin main
-assert "$? -eq 0" "conflicting merge in main branch and local repository" "Solution: use 'git mergetool' to find and correct all merge conflicts."
+assert "$? -eq 0" "conflicting merge in main branch and local repository" "Solution: use 'git mergetool' to find and correct all merge conflicts." "Solution: if you want to overwrite local conflicts with remote state use 'git pull --force origin main'" "Solution: if you want to overwrite remote conflicts with local state use 'git push --force origin main'"
 success "pulled and merged main branch"
 
 git add $1 && success "added '$1'" && \
-git commit -m "$2" && success "commited $2" && \
+git commit -m "$2" && success "commited '$2'" && \
 git push origin master:main && success "pushed to main branch"
 
