@@ -1,5 +1,5 @@
 # CSE-360-Team-Project
-Team members:Michael Zamora, Daniel Burgin, Manuel Navarro, Melwin James, Khrone 
+Team members:Michael Zamora, Daniel Burgin, Manuel Navarro, Melwin James, Zakery Cumbie 
 
 Product Description:
 A GUI desktop application for a restraunt in order to order food online
