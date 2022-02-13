@@ -69,3 +69,4 @@ git add $1 && success "added '$1'" && \
 git commit -m "$2" && success "commited '$2'" && \
 git push origin master:main && success "pushed to main branch"
 
+
