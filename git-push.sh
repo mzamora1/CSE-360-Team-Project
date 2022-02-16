@@ -35,11 +35,26 @@ assert() {
     fi
 }
 
+CWD=$( pwd )
+assert "-d $CWD/.git" "current working directory does not point to a local git repository" \
+"Solution: use 'cd <path-to-local-repo>'"
 
-assert "$# -ge 2" "must supply path to local repository and commit message" \
+NAME=$( git config --get user.name )
+EMAIL=$( git config --get user.email )
+if [ "${NAME}d" == "d" ]
+then
+    read -p "Enter your first and last name. ex. John Smith (used in commit msg): " REALNAME
+    git config --global user.name $REALNAME
+fi
+if [ "${EMAIL}d" == "d" ]
+then
+    read -p "Enter your GitHub email (used in commit msg): " REALEMAIL
+    git config --global user.email $REALEMAIL
+fi
+
+
+assert "$# -ge 2" "must supply path to pass to git add and a commit message" \
 'Usage: ./git-push.sh <path-to-local-repo> "message"'
-
-assert "-d $1/.git" "path does not point to a local git repository"
 
 if [ -z "$2" ]
 then 
@@ -47,13 +62,14 @@ then
     exit 1
 fi
 
+CORRECT_ORIGIN="https://github.com/mzamora1/CSE-360-Team-Project.git"
 ORIGIN=$( git config --get remote.origin.url )
 echo "$( purple 'current remote origin' ): '$ORIGIN'"
 
-if [ $ORIGIN != $'https://github.com/mzamora1/CSE-360-Team-Project.git' ]
+if [ $ORIGIN != $CORRECT_ORIGIN ]
 then
-    echo "$( yellow 'adding remote origin' ): https://github.com/mzamora1/CSE-360-Team-Project.git"
-    git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
+    echo "$( yellow 'adding remote origin' ): $CORRECT_ORIGIN"
+    git remote add origin $CORRECT_ORIGIN
 fi
 
 
@@ -67,6 +83,6 @@ success "fetched and merged main branch"
 
 git add $1 && success "added '$1'" && \
 git commit -m "$2" && success "commited '$2'" && \
-git push origin master:main && success "pushed to main branch"
+git push origin master:main && success "pushed to main branch" || error "failed to push to main branch"
 
 
