@@ -1,5 +1,31 @@
 This will explain the basics of git and the most common commands you will use 
 
+# First time git setup:
+Commands:
+
+cd <path-on-your-computer>
+git clone https://github.com/mzamora1/CSE-360-Team-Project.git
+cd CSE-360-Team-Project
+
+(modify project somehow)
+
+git add .
+git commit -m "message"
+git push origin master:main
+
+These commands assume you have already congifured git on your machine. (ie. add a global username and email)
+If you havent done so, see ./git-push.sh on how to configure git for first time use.
+It is reccomended to use git-bash.exe if using Windows (usually located at C:\Program Files\Git\git-bash.exe).
+
+
+# Status
+Command:
+git status
+
+This will display the status of your local git repository and show commands that may be useful.
+Use this command if youre unsure what has been added or if git produces weird errors
+
+
 # Pull
 Command:
 git pull https://github.com/mzamora1/CSE-360-Team-Project.git main 
@@ -64,20 +90,5 @@ Command:
 git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
 
 This tells git where you want to upload your commits to. In this case we upload to our project repository.
-
-
-# First time git setup:
-Commands:
-
-cd <path-on-your-computer>
-git clone https://github.com/mzamora1/CSE-360-Team-Project.git
-cd CSE-360-Team-Project
-
-(modify project somehow)
-
-git add .
-git commit -m "message"
-git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
-git push origin master:main
 
 

@@ -2,19 +2,23 @@
 
 # This script will push specified local changes to GitHub.
 # It takes two parameters:
-#   1: path to the file or directory you want to 'git add'
-#   2: commit message (ie. "fixed some bug")
+#   path: path to the file or directory you want to 'git add'
+#   message: a string representing the commit message (ie. "fixed some bug")
 # You must execute this script from a local git repository
 # Complete Usage: 
 # 
-#   ./git-push <path-in-local-repo> "COMMIT MESSAGE"
+#   ./git-push <path> "<message>"
 # 
 
 # First time setup can also be done using:
 # 
+# Unix:
 #   curl https://raw.githubusercontent.com/mzamora1/CSE-360-Team-Project/main/git-push.sh | bash 
 # 
-# This will not push anything to GitHub. It will only configure git so that you can 
+# Windows:
+#   curl https://raw.githubusercontent.com/mzamora1/CSE-360-Team-Project/main/git-push.sh | C:\Program Files\Git\git-bash.exe
+# 
+# First time setup will not push anything to GitHub. It will only configure git so that you can 
 # then push to GitHub manually or by rerunning this script with the correct arguments.
 
 red() { echo -e "\e[1;31m$1\e[0m"; }
@@ -40,7 +44,7 @@ assert() {
     fi
 }
 
-USAGE="$( purple "Usage" ): ./git-push.sh <path-in-local-repo> 'message'"
+USAGE="$( purple "Usage" ): ./git-push <path> \"<message>\""
 CORRECT_ORIGIN="https://github.com/mzamora1/CSE-360-Team-Project.git"
 CWD=$( pwd )
 
@@ -80,7 +84,7 @@ fi
 if [ -z "$EMAIL" ]; then
     read -p "Enter your GitHub email (used in commit msg): " EMAIL
     git config --global user.email $EMAIL
-    success "use 'cd '$( pwd )'' and rerun this file to push changes to GitHub"
+    success "use 'cd '$( pwd )'' and rerun this script with arguments to push changes to GitHub"
 fi
 
 
@@ -102,7 +106,7 @@ assert "$? -eq 0" "could be from conflicting merge between main branch and local
 "Solution: Google how to resolve git merge conflicts"
 success "fetched and merged main branch"
 
-git add $1 && success "added '$1'" && \
+git add "$1" && success "added '$1'" && \
 git commit -m "$2" && success "commited '$2'" && \
 git push origin master:main && success "pushed to main branch" || error "failed to push to main branch"
 
