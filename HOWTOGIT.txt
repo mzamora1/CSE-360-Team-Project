@@ -1,6 +1,6 @@
 This will explain the basics of git and the most common commands you will use 
 
-# First time git setup:
+# First time manual git setup:
 Commands:
 
 cd <path-on-your-computer>
@@ -11,11 +11,25 @@ cd CSE-360-Team-Project
 
 git add .
 git commit -m "message"
-git push origin master:main
+git push origin main
 
 These commands assume you have already congifured git on your machine. (ie. add a global username and email)
-If you havent done so, see ./git-push.sh on how to configure git for first time use.
+If you havent done so, ./git-push.sh will configure git for first time use for you, see below how to use.
 It is reccomended to use git-bash.exe if using Windows (usually located at C:\Program Files\Git\git-bash.exe).
+
+# First time setup using git-push.sh
+Commands:
+Unix:
+    cd <path-on-your-computer>
+    curl https://raw.githubusercontent.com/mzamora1/CSE-360-Team-Project/main/git-push | bash 
+ 
+Windows:
+    (in cmd or Powershell)
+    start "C:\ProgramFiles\Git\git-bash.exe"
+    (now use Unix command above inside git-bash)
+
+If you dont have bash try replacing it with sh or zsh or ksh
+The Unix command may work out of the box on Windows too if bash is already installed with WSL
 
 
 # Status
@@ -23,15 +37,22 @@ Command:
 git status
 
 This will display the status of your local git repository and show commands that may be useful.
-Use this command if youre unsure what has been added or if git produces weird errors
+Use this command if you're unsure what has been added or if git produces weird errors
 
 
 # Pull
 Command:
 git pull https://github.com/mzamora1/CSE-360-Team-Project.git main 
 
-This will merge the current state of the main branch with the local files you have on your computer
+This will merge the current state of the main branch on GitHub with the local files you have on your computer
 Invoke this command every time you open the project before you start making changes OR after someone else has pushed changes to the repository
+It is very important to remember to pull before making changes to your local repo so you 
+dont have to comb through merge conflicts when you try to push to the remote repo later on.
+If pull produces merge conflicts, then your local repo has changes not yet saved on GitHub.
+To solve this, you can either throw away your changes with 'git pull --force origin main' or 
+you can push all these new changes to GitHub using 
+'git add . && git commit -m "<message>" && git push origin main' or you could select exactly which
+changes to keep and which ones to discard with 'git mergetool' or 'git diff'
 
 
 # Add
@@ -39,9 +60,12 @@ Command:
 git add .
 
 This will stage all files not excluded in .gitignore so they can be tracked for changes by git.
+It only adds the content of the specified file(s) at the time the add command is run. 
+If you want subsequent changes to be included in the next commit, then you must 
+run git add again to add the new content to the staging area.
 This does not upload anything to GitHub.
 Invoke this command after you add or modify a new file to the project
-Files that need to be added will have a U on the right in vs-code
+Files that need to be added will have a U or M on the right in vs-code
 Files that have already been added will have an A on the right in vs-code
 
 
@@ -52,7 +76,7 @@ git commit -m "message"
 This will prepare the tracked changes to be pushed to the remote repository.
 Essentially creates a snapshot of the files in the staging area and assigns hash key.
 This does not upload anything to GitHub.
-To remove this commit and modify the file, use 'git reset --soft HEAD~1' and commit and add the file again.
+To remove this commit from you local repo and modify the file, use 'git reset --soft HEAD~1' and commit and add the file again.
 Invoke this command before you push
 
 Command: 
@@ -65,9 +89,9 @@ Invoke this command after you modify an already added file (ie. files with M on 
 
 # Push
 Command:
-git push origin master:main
+git push origin <local_branch>:<remote_branch>
 
-This uploads the local branch master to the remote branch main on GitHub.
+This uploads the local branch to the remote branch on GitHub.
 
 If this command gives an error like this: `
     fatal: 'origin' does not appear to be a git repository
@@ -80,9 +104,10 @@ then you must add a new remote origin using git remote.
 Invoke after git commit.
 
 Command:
-git push origin main
+git push origin <branch_name>
 
-Use this push command if git --version > 2.25.1
+Shortcut for the command above where branch_name == local_branch == remote_branch
+ie. 'git push origin main' will push local branch main to remote branch main 
 
 
 # Remote
@@ -90,5 +115,5 @@ Command:
 git remote add origin https://github.com/mzamora1/CSE-360-Team-Project.git
 
 This tells git where you want to upload your commits to. In this case we upload to our project repository.
-
+You will not have to use this command if using 'git clone' or ./git-push
 

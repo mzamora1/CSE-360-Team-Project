@@ -1,25 +1,30 @@
 #!/usr/bin/env bash
 
 # This script will push specified local changes to GitHub.
-# It takes two parameters:
+# It always tries to pull from origin/main and push to origin/main no matter what local branch youre on
+# It takes two arguments:
 #   path: path to the file or directory you want to 'git add'
 #   message: a string representing the commit message (ie. "fixed some bug")
 # You must execute this script from a local git repository
 # Complete Usage: 
-# 
+#   (on Unix or in git-bash)
 #   ./git-push <path> "<message>"
 # 
 
-# First time setup can also be done using:
-# 
+# First time setup using git-push
+# Commands:
 # Unix:
-#   curl https://raw.githubusercontent.com/mzamora1/CSE-360-Team-Project/main/git-push.sh | bash 
-# 
+#     cd <path-on-your-computer>
+#     curl https://raw.githubusercontent.com/mzamora1/CSE-360-Team-Project/main/git-push | bash 
+ 
 # Windows:
-#   curl https://raw.githubusercontent.com/mzamora1/CSE-360-Team-Project/main/git-push.sh | C:\Program Files\Git\git-bash.exe
+#     (in cmd or Powershell)
+#     start "C:\ProgramFiles\Git\git-bash.exe"
+#     (now use Unix command above inside git-bash)
 # 
-# First time setup will not push anything to GitHub. It will only configure git so that you can 
-# then push to GitHub manually or by rerunning this script with the correct arguments.
+# First time setup will not push anything to GitHub. It will only walk you through configuring
+# git so that you can then push to GitHub manually or by rerunning this script with 
+# the correct arguments.
 
 red() { echo -e "\e[1;31m$1\e[0m"; }
 green() { echo -e "\e[1;32m$1\e[0m"; }
@@ -50,11 +55,12 @@ CWD=$( pwd )
 
 if ! [ -d "$CWD/.git" ]; then
     warning "current working directory does not point to a local git repository"
-    read -p "Do you want to clone the repository into its own folder in this directory? (yes/no)" CHOICE
+    read -p "Do you want to clone the repository into its own folder in this directory? (yes/no): " CHOICE <&1
     case $CHOICE in
         yes | y | Y | YES | 1) 
             git clone $CORRECT_ORIGIN
             success "cloned CSE-360-Team-Project to '$CWD/CSE-360-Team-Project'"
+            echo "You can now use 'cd CSE-360-Team-Project' to work in the local repository."
             cd CSE-360-Team-Project
             ;;
         *)
@@ -67,6 +73,7 @@ fi
 ORIGIN=$( git config --get remote.origin.url )
 NAME=$( git config --get user.name )
 EMAIL=$( git config --get user.email )
+LOCAL_BRANCH=$( git branch --show-current )
 
 if [ -z "$ORIGIN" ]; then
     echo "$( yellow 'adding remote origin' ): $CORRECT_ORIGIN"
@@ -77,16 +84,34 @@ elif [ $ORIGIN != $CORRECT_ORIGIN ]; then
 fi
 
 if [ -z "$NAME" ]; then
-    read -p "Enter your first and last name. ex. 'John Smith' (used in commit msg): " NAME
+    read -p "Enter your first and last name. ex. 'John Smith' (used in commit msg): " NAME <&1
     git config --global user.name $NAME
 fi
 
 if [ -z "$EMAIL" ]; then
-    read -p "Enter your GitHub email (used in commit msg): " EMAIL
+    read -p "Enter your GitHub email (used in commit msg): " EMAIL <&1
     git config --global user.email $EMAIL
     success "use 'cd '$( pwd )'' and rerun this script with arguments to push changes to GitHub"
 fi
 
+if [ -z "$LOCAL_BRANCH" ]; then
+    echo "$( yellow 'checking out main branch' ): Local branch: main, Remote branch: origin/main"
+    LOCAL_BRANCH="main"
+    git fetch --all
+    git checkout -b "$LOCAL_BRANCH" origin/main
+elif [ "$LOCAL_BRANCH" != "main" ]; then
+    warning "not working on main branch. Local branch: '$LOCAL_BRANCH'. Are you sure this is correct? (yes/no): "
+    read CHOICE <&1
+    case $CHOICE in 
+        yes | y | Y | YES | 1) 
+            echo "ok continuing..."
+            ;;
+        *)
+            error "aborted. Use 'git checkout main' to switch to the main branch"
+            exit 1
+            ;;
+    esac
+fi
 
 # end of setup
 
@@ -102,12 +127,12 @@ git pull origin main
 assert "$? -eq 0" "could be from conflicting merge between main branch and local repository" \
 "Solution: use 'git mergetool' or 'git diff' to find and correct all merge conflicts." \
 "Solution: if you want to overwrite local conflicts with remote state use 'git pull --force origin main'" \
-"Solution: if you want to overwrite remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin master:main'" \
+"Solution: if you want to overwrite remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin main'" \
 "Solution: Google how to resolve git merge conflicts"
 success "fetched and merged main branch"
 
 git add "$1" && success "added '$1'" && \
 git commit -m "$2" && success "commited '$2'" && \
-git push origin master:main && success "pushed to main branch" || error "failed to push to main branch"
+git push origin "$LOCAL_BRANCH:main" && success "pushed to main branch" || error "failed to push to main branch, see output above"
 
 
