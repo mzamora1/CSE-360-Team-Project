@@ -136,4 +136,3 @@ git add "$1" && success "added '$1'" && \
 git commit -m "$2" && success "commited '$2'" && \
 git push origin "$LOCAL_BRANCH:main" && success "pushed to main branch" || error "failed to push to main branch, see output above"
 
-
