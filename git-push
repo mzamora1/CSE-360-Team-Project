@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# This script will push specified local changes to GitHub.
-# It always tries to pull from origin/main and push to origin/main no matter what local branch youre on
+# This script will push specified local changes to the specified remote branch on GitHub.
+# It always tries to pull from specified branch and push to specified branch no matter what local branch youre on
 # It is safe to run multiple times if errors occur as it will prompt before changing something important.
 # It takes two arguments:
 #   path: path to the file or directory you want to 'git add'
@@ -9,7 +9,7 @@
 # You must execute this script from a local git repository
 # Complete Usage: 
 #   (on Unix or in git-bash)
-#   ./git-push <path> "<message>"
+#   ./git-push <path> "<message>" <remote-branch-name?= 'main'>
 # 
 
 # First time setup using git-push
@@ -62,18 +62,20 @@ assert() {
         exit 1
     fi
 }
+assertOk() { assert "$? -eq 0" $@; }
 
-GIT_VERSION=$( git --version )
-assert "$? -eq 0" "could not find git" "Install git for your platform from 'https://git-scm.com/downloads' and make sure it is added to your \$PATH"
 
 REPO_NAME="CSE-360-Team-Project"
-USAGE="$( purple "Usage" ): ./git-push <path-to-add> \"<commit message>\""
+USAGE="$( purple "Usage" ): ./git-push <path> \"<message>\" <remote-branch-name?= 'main'>\n\tpath: single path to files you want to 'git add'\n\tmessage: string representing commit message (must include \"\" if multiworded)\n\tremote-branch-name: name of branch to push to (optional, defaults to main branch)\n"
 CORRECT_ORIGIN="https://github.com/mzamora1/$REPO_NAME.git"
 CWD=$( pwd )
 
+GIT_VERSION=$( git --version )
+assertOk "could not find git" "Install git for your platform from 'https://git-scm.com/downloads' and make sure it is added to your \$PATH"
+
 if ! [ -d "$CWD/.git" ]; then
     askYesNo "$( warning "current working directory does not point to a local git repository\nDo you want to clone the repository into its own folder in this directory?" )"
-    assert "$? -eq 0" "rerun in a local git repository"
+    assertOk "rerun in a local git repository"
     git clone $CORRECT_ORIGIN
     success "cloned $REPO_NAME to '$CWD/$REPO_NAME'"
     echo "Use 'cd $REPO_NAME' to work in the local repository."
@@ -98,93 +100,148 @@ elif [ "$ORIGIN" != "$CORRECT_ORIGIN" ]; then
     fi
 fi
 
+
+set_config() {
+    git config --global "$1" "$2"
+    echo "$( yellow "set '$1'" ): $2"
+}
 if [ -z "$NAME" ]; then
     read -p "Enter your first and last name. ex. 'John Smith' (used in commit msg): " NAME <&1
-    git config --global user.name "$NAME"
+    set_config user.name "$NAME"
 fi
 
 if [ -z "$EMAIL" ]; then
     read -p "Enter your GitHub no-reply email (used in commit msg): " EMAIL <&1
-    git config --global user.email "$EMAIL"
+    set_config user.email "$EMAIL"
 fi
 
 if [ "$LOCAL_BRANCH" != "main" ]; then
-    askYesNo "$( warning "you're about to push to the main branch while working on local branch: '$LOCAL_BRANCH'\nDo you want to switch back to main branch?")"
+    askYesNo "$( warning "you're about to push to the main branch while working on local branch: '$LOCAL_BRANCH'\nDo you want to switch back to main branch? No will continue executing")"
     if [ $? -eq 0 ]; then
         LOCAL_BRANCH="main"
         git fetch --all
         git checkout -b "$LOCAL_BRANCH" origin/main
-        assert "$? -eq 0" "failed to checkout main branch, see output above"
+        assertOk "failed to checkout main branch, see output above"
+        echo "$( yellow 'switched to main branch' )"
     fi
     echo "ok continuing..."
 fi
 
 export GPG_TTY=$(tty)
 
-if [ "$1" == "--init-gpg" ]; then
+extract_keys() { gpg --list-keys --keyid-format LONG $@; }
+extract_keyid() {
+    extract_keys $@ | grep "^pub\|^sec" | cut -d'/' -f 2 | cut -d' ' -f 1
+}
+extract_keyalgo() {
+    extract_keys $@ | grep "^pub\|^sec" | cut -d'/' -f 1 | cut -d' ' -f 4
+}
+set_signingkey() {
+    set_config user.signingkey $1
+    set_config commit.gpgsign 'true'
+}
+
+init_gpg() {
     GPG_VERSION_INFO=$( gpg --version )
-    assert "$? -eq 0" "could not find gpg" "If its NOT installed, rerun without '--init-gpg' flag" \
+    assertOk "could not find gpg" "If its NOT installed, rerun without '--init-gpg' flag" \
     "If it is installed, make sure it is added to your \$PATH"
-    KEY_MATCH=$( gpg --list-keys --keyid-format LONG "Gen by git-push" | grep "$NAME.\+$EMAIL" )
-    if [ -n "$KEY_MATCH" ]; then
-        askYesNo "$( warning "already created gpg key for '$NAME' <$EMAIL>\nDo you really want to make another one?" )"
-        assert "$? -eq 0" "rerun without '--init-gpg' flag"
-        echo "ok continuing..."
+    KEY_USER=$( extract_keys | grep "$NAME.\+$EMAIL" )
+    if [ -n "$KEY_USER" ]; then
+        warning "already created gpg key for '$NAME' <$EMAIL>\nDo you want to..."
+        PS3="Enter a number above: "
+        SIGNING_KEY=$( extract_keyid "$NAME" "$EMAIL" )
+        select CHOICE in "use key id: $SIGNING_KEY" "make another key" "quit and exit"; do
+            case $CHOICE in
+                "use key id: $SIGNING_KEY")
+                    if [ "$( extract_keyalgo $SIGNING_KEY )" != "rsa4096" ]; then
+                        askYesNo "$( warning "key id($SIGNING_KEY) does not use default algo 'rsa4096' so it may not work correctly with github.\nDo you still want to set it as your signing key?" )"
+                        assertOk "rerun with '--init-gpg' to make a new key"
+                    fi
+                    set_signingkey $SIGNING_KEY
+                    exit 0
+                    ;;
+                "make another key")
+                    echo "ok continuing..."
+                    ;;
+                *)
+                    error "rerun without '--init-gpg' flag"
+                    exit 0
+                    ;;
+            esac
+            break
+        done
     fi
-    echo "Begin gpg configuration..."
-    read -p "Enter a passphrase for this gpg key that you will remember: " PASSPHRASE <&1
+    echo "Configuring a new gpg key..."
+    read -p "Enter a passphrase for this key that you will remember: " PASSPHRASE <&1
     COMMENT="Gen by git-push on $( date )"
-    gpg --default-new-key-algo rsa4096 --gen-key --batch <<eoGpgConf
-        %echo Started!
-        Key-Type: 1
-        Key-Length: 4096
-        Subkey-Type: 1
-        Subkey-Length: 4096
-        Name-Real: $NAME
-        Name-Comment: $COMMENT
-        Name-Email: $EMAIL
-        Expire-Date: 0
-        Passphrase: $PASSPHRASE
-        %commit
-        %echo Finished creating key.
-eoGpgConf
-    assert "$? -eq 0" "could not generate keys, see output above." \
+    gpg --default-new-key-algo rsa4096 --gen-key --batch <<GPGConfig
+%echo Creating gpg key...
+Key-Type: 1
+Key-Length: 4096
+Subkey-Type: 1
+Subkey-Length: 4096
+Name-Real: $NAME
+Name-Comment: $COMMENT
+Name-Email: $EMAIL
+Expire-Date: 0
+Passphrase: $PASSPHRASE
+%commit
+%echo Finished creating key.
+GPGConfig
+    assertOk "could not generate keys, see output above." \
     "gpg is optional, so if this is too much of a pain then dont include '--init-gpg' argument."
-    SIGNING_KEY=$( gpg --list-keys --keyid-format LONG "$COMMENT" | grep "^pub\|^sec" | cut -d'/' -f 2 | cut -d' ' -f 1 )
+    SIGNING_KEY=$( extract_keyid "$COMMENT" )
     printf "\n$( purple "Public GPG Key" ): \n\n"
     gpg --armor --export $SIGNING_KEY
-    printf "\n\n$( purple Instructions ):\n\t1. Sign into GitHub.com\n\t2. Go to your profile settings and find where it says 'GPG keys'\n\t3. Click 'New GPG key'\n\t4. Copy the whole block of text above from ---BEGIN--- to ---end--- into the prompt and add key.\n\t5. Once done, press ENTER to continue\n"
+    printf "\n\n$( purple Instructions ):\n\t1. Sign into GitHub.com\n\t2. Go to your profile settings and find where it says 'GPG keys'\n\t3. Click 'New GPG key'\n\t4. Copy the whole block of text above from ---BEGIN--- to ---END--- into the prompt and add key.\n\t5. Once done, press ENTER to continue\n"
     read CHOICE <&1
-    git config --global user.signingkey $SIGNING_KEY
-    git config --global commit.gpgsign 'true'
-    echo "$( yellow 'set global user signing key' ): $SIGNING_KEY"
+    set_signingkey $SIGNING_KEY
+    echo "To stop using verified commits use 'git config --global commit.gpgsign 'false''"
     success "configured git and gpg. Use 'cd $REPO_NAME' and start making verified commits!"
     echo "$USAGE"
     exit 0
+}
+
+
+if [ "$1" == "--init-gpg" ]; then
+    init_gpg
 fi
 
 # end of setup
 
 
-if [ -n "$SIGNING_KEY" ] && [ "$(git config --get commit.gpgsign )" == "true" ]; then
-    KEY_MATCH=$( gpg --list-keys --keyid-format LONG $SIGNING_KEY | grep "$NAME.\+$EMAIL" )
-    if [ -z "$KEY_MATCH" ]; then
+if [ "$(git config --get commit.gpgsign )" == "true" ]; then
+    KEY_USER=$( extract_keys $SIGNING_KEY | grep "$NAME.\+$EMAIL" )
+    if [ -z "$KEY_USER" ]; then
         error "Current user (name: '$NAME', email: '$EMAIL') does not match current signing key-id (signingkey: $SIGNING_KEY)"
         echo "Change git user configuration or create a new key for this user using './git-push --init-gpg'"
+        echo "If errors still occur after making a new key then disable verified commits with 
+        'git config --global commit.gpgsign 'false''"
         exit 1
     fi
 fi
 
-assert "$# -eq 2" "must supply path to pass to git add and a commit message" "$USAGE"
+if [ $# -gt 3 ] || [ $# -lt 2 ]; then 
+    error "incorrect usage"
+    printf "$USAGE"
+    exit 1
+fi
 
 if [ -z "$2" ]; then 
     error "commit message must not be empty"
     exit 1
 fi
 
+REMOTE_BRANCH=$( [ -n "$3" ] && echo "$3" || echo main )
+REMOTE_BRANCHS=$( git branch -r )
+if [ -z "$( echo "$REMOTE_BRANCHS" | grep -F "origin/$REMOTE_BRANCH" )" ]; then
+    error "cannot find remote branch 'origin/$REMOTE_BRANCH'"
+    exit 1
+fi
+
 
 git pull origin main
-assert "$? -eq 0" "could be from conflicting merge between main branch and local repository" \
+assertOk "could be from conflicting merge between main branch and local repository" \
 "Solution: use 'git mergetool' or 'git diff' to find and correct each merge conflict." \
 "Solution: if you want to overwrite all local conflicts with remote state use 'git pull --force origin main'" \
 "Solution: if you want to overwrite all remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin main'" \
@@ -193,5 +250,6 @@ success "fetched and merged main branch"
 
 git add "$1" && success "added '$1'" && \
 git commit -m  "$2" && success "commited '$2'" && \
-git push origin "$LOCAL_BRANCH:main" && success "pushed to main branch" || error "failed to push to main branch, see output above"
+git push origin "$LOCAL_BRANCH:$REMOTE_BRANCH" && success "pushed to main branch" || error "failed to push to main branch, see output above"
 
+exit $?
