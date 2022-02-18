@@ -2,6 +2,7 @@
 
 # This script will push specified local changes to GitHub.
 # It always tries to pull from origin/main and push to origin/main no matter what local branch youre on
+# It is safe to run multiple times if errors occur as it will prompt before changing something important.
 # It takes two arguments:
 #   path: path to the file or directory you want to 'git add'
 #   message: a string representing the commit message (ie. "fixed some bug")
@@ -38,7 +39,8 @@ error() {
     return 1
 }
 askYesNo() {
-    read -p "$1 (yes/no): " CHOICE <&1
+    printf "$1\n(yes/no): "
+    read CHOICE <&1
     case $CHOICE in 
         yes | y | Y | YES | 1) 
             return 0
@@ -61,8 +63,11 @@ assert() {
     fi
 }
 
+GIT_VERSION=$( git --version )
+assert "$? -eq 0" "could not find git" "Install git for your platform from 'https://git-scm.com/downloads' and make sure it is added to your \$PATH"
+
 REPO_NAME="CSE-360-Team-Project"
-USAGE="$( purple "Usage" ): ./git-push <path> \"<message>\""
+USAGE="$( purple "Usage" ): ./git-push <path-to-add> \"<commit message>\""
 CORRECT_ORIGIN="https://github.com/mzamora1/$REPO_NAME.git"
 CWD=$( pwd )
 
@@ -75,19 +80,22 @@ if ! [ -d "$CWD/.git" ]; then
     cd "$REPO_NAME"
 fi
 
-ORIGIN=$( git config --get remote.origin.url )
+LOCAL_BRANCH=$( git branch --show-current )
 NAME=$( git config --get user.name )
 EMAIL=$( git config --get user.email )
 SIGNING_KEY=$( git config --get user.signingkey )
-LOCAL_BRANCH=$( git branch --show-current )
+ORIGIN=$( git config --get remote.origin.url )
 
-
-if [ -z "$ORIGIN" ]; then
+if [ ! $? -eq 0 ]; then
     echo "$( yellow 'adding remote origin' ): $CORRECT_ORIGIN"
-    git remote add origin $CORRECT_ORIGIN
-elif [ $ORIGIN != $CORRECT_ORIGIN ]; then
-    echo "$( yellow 'setting remote origin' ): $CORRECT_ORIGIN"
-    git remote set-url origin $CORRECT_ORIGIN
+    git remote add origin "$CORRECT_ORIGIN"
+elif [ "$ORIGIN" != "$CORRECT_ORIGIN" ]; then
+    askYesNo "$( warning "Your remote origin does not point to $REPO_NAME\nDo you want to set it back to deafult ($CORRECT_ORIGIN)?" )"
+    if [ $? -eq 0 ]; then 
+        git remote set-url origin "$CORRECT_ORIGIN"
+        echo "$( yellow 'set remote origin' ): $CORRECT_ORIGIN"
+    else echo "ok continuing..."
+    fi
 fi
 
 if [ -z "$NAME" ]; then
@@ -100,21 +108,22 @@ if [ -z "$EMAIL" ]; then
     git config --global user.email "$EMAIL"
 fi
 
-if [ -z "$LOCAL_BRANCH" ]; then
-    echo "$( yellow 'checking out main branch' ): Local branch: main, Remote branch: origin/main"
-    LOCAL_BRANCH="main"
-    git fetch --all
-    git checkout -b "$LOCAL_BRANCH" origin/main
-elif [ "$LOCAL_BRANCH" != "main" ]; then
-    askYesNo "$( warning "you're about to push to the main branch while working on local branch: '$LOCAL_BRANCH'\nAre you sure this is correct?")"
-    assert "$? -eq 0" "aborted. Use 'git checkout main' to switch to the main branch"
+if [ "$LOCAL_BRANCH" != "main" ]; then
+    askYesNo "$( warning "you're about to push to the main branch while working on local branch: '$LOCAL_BRANCH'\nDo you want to switch back to main branch?")"
+    if [ $? -eq 0 ]; then
+        LOCAL_BRANCH="main"
+        git fetch --all
+        git checkout -b "$LOCAL_BRANCH" origin/main
+        assert "$? -eq 0" "failed to checkout main branch, see output above"
+    fi
     echo "ok continuing..."
 fi
 
 export GPG_TTY=$(tty)
+
 if [ "$1" == "--init-gpg" ]; then
     GPG_VERSION_INFO=$( gpg --version )
-    assert "$? -eq 0" "could not find gpg" "If its not installed, rerun without '--init-gpg' flag" \
+    assert "$? -eq 0" "could not find gpg" "If its NOT installed, rerun without '--init-gpg' flag" \
     "If it is installed, make sure it is added to your \$PATH"
     KEY_MATCH=$( gpg --list-keys --keyid-format LONG "Gen by git-push" | grep "$NAME.\+$EMAIL" )
     if [ -n "$KEY_MATCH" ]; then
@@ -137,11 +146,11 @@ if [ "$1" == "--init-gpg" ]; then
         Expire-Date: 0
         Passphrase: $PASSPHRASE
         %commit
-        %echo Done.
+        %echo Finished creating key.
 eoGpgConf
     assert "$? -eq 0" "could not generate keys, see output above." \
     "gpg is optional, so if this is too much of a pain then dont include '--init-gpg' argument."
-    SIGNING_KEY=$( gpg --list-keys --keyid-format LONG "$COMMENT" | grep "^pub\|sec" | cut -d'/' -f 2 | cut -d' ' -f 1 )
+    SIGNING_KEY=$( gpg --list-keys --keyid-format LONG "$COMMENT" | grep "^pub\|^sec" | cut -d'/' -f 2 | cut -d' ' -f 1 )
     printf "\n$( purple "Public GPG Key" ): \n\n"
     gpg --armor --export $SIGNING_KEY
     printf "\n\n$( purple Instructions ):\n\t1. Sign into GitHub.com\n\t2. Go to your profile settings and find where it says 'GPG keys'\n\t3. Click 'New GPG key'\n\t4. Copy the whole block of text above from ---BEGIN--- to ---end--- into the prompt and add key.\n\t5. Once done, press ENTER to continue\n"
@@ -149,7 +158,8 @@ eoGpgConf
     git config --global user.signingkey $SIGNING_KEY
     git config --global commit.gpgsign 'true'
     echo "$( yellow 'set global user signing key' ): $SIGNING_KEY"
-    success "configured git and gpg. Use 'cd $REPO_NAME' to start working."
+    success "configured git and gpg. Use 'cd $REPO_NAME' and start making verified commits!"
+    echo "$USAGE"
     exit 0
 fi
 
@@ -165,7 +175,7 @@ if [ -n "$SIGNING_KEY" ] && [ "$(git config --get commit.gpgsign )" == "true" ];
     fi
 fi
 
-assert "$# -ge 2" "must supply path to pass to git add and a commit message" "$USAGE"
+assert "$# -eq 2" "must supply path to pass to git add and a commit message" "$USAGE"
 
 if [ -z "$2" ]; then 
     error "commit message must not be empty"
@@ -175,13 +185,13 @@ fi
 
 git pull origin main
 assert "$? -eq 0" "could be from conflicting merge between main branch and local repository" \
-"Solution: use 'git mergetool' or 'git diff' to find and correct all merge conflicts." \
-"Solution: if you want to overwrite local conflicts with remote state use 'git pull --force origin main'" \
-"Solution: if you want to overwrite remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin main'" \
+"Solution: use 'git mergetool' or 'git diff' to find and correct each merge conflict." \
+"Solution: if you want to overwrite all local conflicts with remote state use 'git pull --force origin main'" \
+"Solution: if you want to overwrite all remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin main'" \
 "Solution: Google how to resolve git merge conflicts"
 success "fetched and merged main branch"
 
 git add "$1" && success "added '$1'" && \
-git commit -m  "$2" --verbose && success "commited '$2'" && \
+git commit -m  "$2" && success "commited '$2'" && \
 git push origin "$LOCAL_BRANCH:main" && success "pushed to main branch" || error "failed to push to main branch, see output above"
 
