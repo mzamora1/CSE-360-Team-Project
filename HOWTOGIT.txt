@@ -21,7 +21,7 @@ It is reccomended to use git-bash.exe if using Windows (usually located at C:\Pr
 Commands:
 Unix:
     cd <path-on-your-computer>
-    curl https://raw.githubusercontent.com/mzamora1/CSE-360-Team-Project/main/git-push | bash 
+    curl https://raw.githubusercontent.com/mzamora1/CSE-360-Team-Project/main/git-push | bash -s -- --init-gpg
  
 Windows:
     (in cmd or Powershell)
