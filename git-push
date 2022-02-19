@@ -9,7 +9,7 @@
 # You must execute this script from a local git repository
 # Complete Usage: 
 #   (on Unix or in git-bash)
-#   ./git-push <path> "<message>" <remote-branch-name?= 'main'>
+#   ./git-push <path> "<message>" <remote-branch-name? = 'main'>
 # 
 
 # First time setup using git-push
@@ -66,7 +66,7 @@ assertOk() { assert "$? -eq 0" $@; }
 
 
 REPO_NAME="CSE-360-Team-Project"
-USAGE="$( purple "Usage" ): ./git-push <path> \"<message>\" <remote-branch-name?= 'main'>\n\tpath: single path to files you want to 'git add'\n\tmessage: string representing commit message (must include \"\" if multiworded)\n\tremote-branch-name: name of branch to push to (optional, defaults to main branch)\n"
+USAGE="$( purple "Usage" ): ./git-push <path> \"<message>\" <remote-branch-name? = 'main'>\n\tpath: single path to files you want to 'git add'\n\tmessage: string representing commit message (must include \"\" if multiworded)\n\tremote-branch-name: name of branch to push to (optional, defaults to main branch)\n"
 CORRECT_ORIGIN="https://github.com/mzamora1/$REPO_NAME.git"
 CWD=$( pwd )
 
@@ -82,6 +82,7 @@ if ! [ -d "$CWD/.git" ]; then
     cd "$REPO_NAME"
 fi
 
+REMOTE_BRANCH=$( [ -n "$3" ] && echo "$3" || echo main )
 LOCAL_BRANCH=$( git branch --show-current )
 NAME=$( git config --get user.name )
 EMAIL=$( git config --get user.email )
@@ -115,16 +116,20 @@ if [ -z "$EMAIL" ]; then
     set_config user.email "$EMAIL"
 fi
 
-if [ "$LOCAL_BRANCH" != "main" ]; then
-    askYesNo "$( warning "you're about to push to the main branch while working on local branch: '$LOCAL_BRANCH'\nDo you want to switch back to main branch? No will continue executing")"
+if [ "$LOCAL_BRANCH" != "$REMOTE_BRANCH" ]; then
+    askYesNo "$( warning "you're about to push to remote branch '$REMOTE_BRANCH' while working on local branch: '$LOCAL_BRANCH'\nDo you want to change local branch to '$REMOTE_BRANCH'? No will continue executing")"
     if [ $? -eq 0 ]; then
-        LOCAL_BRANCH="main"
+        LOCAL_BRANCH="$REMOTE_BRANCH"
         git fetch --all
-        git checkout -b "$LOCAL_BRANCH" origin/main
-        assertOk "failed to checkout main branch, see output above"
-        echo "$( yellow 'switched to main branch' )"
+        MSG=$( git checkout -b "$LOCAL_BRANCH" "origin/$REMOTE_BRANCH" )
+        assertOk "failed to checkout '$REMOTE_BRANCH', see output above"
+        yellow "$MSG"
     fi
     echo "ok continuing..."
+elif [ -z "$( git branch -r | grep -F "origin/$REMOTE_BRANCH" )" ]; then
+    error "cannot find remote branch 'origin/$REMOTE_BRANCH'"
+    echo "Use 'git fetch origin' and rerun if you think this is incorrect"
+    exit 1
 fi
 
 export GPG_TTY=$(tty)
@@ -142,7 +147,7 @@ set_signingkey() {
 }
 
 init_gpg() {
-    GPG_VERSION_INFO=$( gpg --version )
+    HAS_GPG=$( command -V gpg )
     assertOk "could not find gpg" "If its NOT installed, rerun without '--init-gpg' flag" \
     "If it is installed, make sure it is added to your \$PATH"
     KEY_USER=$( extract_keys | grep "$NAME.\+$EMAIL" )
@@ -232,24 +237,17 @@ if [ -z "$2" ]; then
     exit 1
 fi
 
-REMOTE_BRANCH=$( [ -n "$3" ] && echo "$3" || echo main )
-REMOTE_BRANCHS=$( git branch -r )
-if [ -z "$( echo "$REMOTE_BRANCHS" | grep -F "origin/$REMOTE_BRANCH" )" ]; then
-    error "cannot find remote branch 'origin/$REMOTE_BRANCH'"
-    exit 1
-fi
 
-
-git pull origin main
+git pull origin "$REMOTE_BRANCH"
 assertOk "could be from conflicting merge between main branch and local repository" \
 "Solution: use 'git mergetool' or 'git diff' to find and correct each merge conflict." \
 "Solution: if you want to overwrite all local conflicts with remote state use 'git pull --force origin main'" \
 "Solution: if you want to overwrite all remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin main'" \
-"Solution: Google how to resolve git merge conflicts"
+"Solution: use 'git fetch origin' if can't find remote branch"
 success "fetched and merged main branch"
 
 git add "$1" && success "added '$1'" && \
-git commit -m  "$2" && success "commited '$2'" && \
-git push origin "$LOCAL_BRANCH:$REMOTE_BRANCH" && success "pushed to main branch" || error "failed to push to main branch, see output above"
+git commit -m "$2" && success "commited '$2'" && \
+git push origin "$LOCAL_BRANCH:$REMOTE_BRANCH" && success "pushed to '$REMOTE_BRANCH'" || error "failed to push to '$REMOTE_BRANCH', see output above"
 
 exit $?
