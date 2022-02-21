@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+yellow() { printf "\e[1;33m$1\e[0m"; }
+warning() { printf "$( yellow "WARNING" ): $1\n"; }
+green() { printf "\e[1;32m$1\e[0m"; }
+success() { printf "$( green "SUCCESS" ): $1\n"; }
+red() { printf "\e[1;31m$1\e[0m"; }
+error() {
+    printf "$( red "ERROR" ): $1\n"
+    return 1
+}
+assert() {
+    # echo $1
+    if ! [ $1 ]; then
+        error "$2"
+        until [ -z "$3" ]; do  # Until all parameters used up . . .
+            echo "$3"
+            shift
+        done
+        exit 1
+    fi
+}
+assertOk() { assert "$? -eq 0" "$@"; }
+assertHasCommands() { 
+    for COMMAND in $@; do
+        command -V $COMMAND > /dev/null
+        assertOk "cannot find '$COMMAND'\nMake sure it is visible and added to your \$PATH by typing '$COMMAND --version'"
+    done
+}
+fatalError() { error "$@" ; exit 1 ; }
+
+assertHasCommands javac jar
+
+# Compile settings
+
+FLAGS=$@
+OUTDIR=output
+PACKAGE=restaurant
+MODULES="javafx.controls,javafx.fxml"
+MAIN_CLASS=App
+SRCDIR=src/main
+JAVADIR=$SRCDIR/java
+RESOURCEDIR=$SRCDIR/resources
+SRCS=$( find "$JAVADIR/" -type f -name '*.java' )
+
+
+assertOk "error finding java files in '$JAVADIR'"
+
+# /usr/lib/javafx-sdk-17.0.2/lib
+until [ -e "$JAVAFX/javafx.base.jar" ]; do
+    warning "\$JAVAFX does not point to the library directory for javafx\nUse 'export JAVAFX=path-to-your-javafx/lib' to stop seeing this message"
+    read -p "Enter the path to javafx/lib on your computer: " JAVAFX <&1
+done
+
+if [ -d "$OUTDIR" ]; then
+    # clean output directory
+    rm -r "$OUTDIR/"
+    assertOk "failed to clean '$OUTDIR' before compilation"
+else mkdir -p "$OUTDIR" || fatalError "could not make output directory '$OUTDIR'"
+fi
+
+
+# copy resource files into package output directory
+# (RESOURCEDIR should resemble JAVADIR structure for packages with resources) 
+cp -r "$RESOURCEDIR" "$OUTDIR"
+assertOk "failed to copy '$RESOURCEDIR' to '$OUTDIR'"
+
+# compile the program to output directory
+COMPILECOMMAND=$( echo javac -d "$OUTDIR" --module-path "$JAVAFX" --add-modules $MODULES $FLAGS $SRCS )
+echo $COMPILECOMMAND
+$COMPILECOMMAND
+assertOk "failed to compile, see output above"
+
+# compress and package program into JAR file
+jar cfe "$OUTDIR/$PACKAGE.jar" $PACKAGE.$MAIN_CLASS -C "$OUTDIR" .
+assertOk "failed to package jar file"
+
+# delete now unneeded .class files from output directory so we can upload output directory straight to github
+rm "$OUTDIR"/*.class -r "$OUTDIR/$PACKAGE"
+find "$OUTDIR/" -not -name "$PACKAGE.jar" -not -path "$OUTDIR/" -delete
+assertOk "failed to cleanup '$OUTDIR' after compilation"
+
+success "created '$PACKAGE.jar' in directory '$OUTDIR' "
