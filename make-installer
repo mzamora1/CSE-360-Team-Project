@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# This script will create an installer for your host system
+# It will create .msi for Windows, .dmg for Mac, and .deb or .rpm for Linux distrubtions
+# These files help users install packages on their systems, essentailly executing ./package for them
+# You must first './package' before you can './make-installer'
+# Usage: ./make-installer
+
+source settings.sh
+INSTALLER_DIR=$OUTDIR/installer
+assertHasCommands jpackage
+assert "-x $PACKAGE_OUTDIR/bin/$PACKAGE" "you must run './package' before you can './-make-installer'"
+
+if [ -d "$INSTALLER_DIR" ]; then
+    # remove old packaged image
+    rm -r --force "$INSTALLER_DIR"
+    assertOk "failed to remove old packaged image at '$INSTALLER_DIR'"
+    success "cleaned '$INSTALLER_DIR'"
+fi
+echo "Creating installer for $PACKAGE_OUTDIR..."
+INSTALLERCOMMAND=$( echo jpackage -d $INSTALLER_DIR --name $PACKAGE --runtime-image $PACKAGE_OUTDIR --module $PACKAGE/$PACKAGE.$MAIN_CLASS )
+echo $INSTALLERCOMMAND
+$INSTALLERCOMMAND
+assertOk "failed to create installer at '$INSTALLER_DIR'"
+success "created installer at $INSTALLER_DIR"

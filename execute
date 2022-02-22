@@ -1,27 +1,20 @@
 #!/usr/bin/env bash
 
-yellow() { printf "\e[1;33m$1\e[0m"; }
-warning() { printf "$( yellow "WARNING" ): $1\n"; }
-red() { printf "\e[1;31m$1\e[0m"; }
-error() {
-    printf "$( red "ERROR" ): $1\n"
-    return 1
-}
-# /usr/lib/javafx-sdk-17.0.2/lib
-until [ -e "$JAVAFX/javafx.base.jar" ]; do
-    warning "\$JAVAFX does not point to the library directory for javafx\nUse 'export JAVAFX=path-to-your-javafx/lib' to stop seeing this message"
-    read -p "Enter the path to javafx/lib on your computer: " JAVAFX <&1
-done
+# This script executes the already compiled package using the packages class files
+# Usage: ./execute
 
-OUTDIR=output
-PACKAGE=restaurant
-MODULES="javafx.controls,javafx.fxml"
-JAR="$OUTDIR/$PACKAGE.jar"
-if [ ! -e $JAR ]; then
-    error "'$JAR' does not exist\ncheck ./compile settings"
-    exit 1
-fi
+source settings.sh
 
-# java -Djava.library.path="$JAVAFX" --module-path $JAVAFX --add-modules javafx.controls,javafx.fxml -cp output restaurant.App
+assertHasCommands java
+assert "-r $OUTDIR/$PACKAGE/$MAIN_CLASS.class" "you must compile '$PACKAGE' before executing"
 
-java --module-path "$JAVAFX" --add-modules "$MODULES" -jar "$JAR"
+EXECUTECOMMAND=$( echo java --module-path $JAVAFX --add-modules $MODULES --class-path $OUTDIR $PACKAGE.$MAIN_CLASS )
+echo $EXECUTECOMMAND
+$EXECUTECOMMAND
+
+assertOk "returned with exit code $?"
+
+
+# JAR="$OUTDIR/$PACKAGE.jar"
+# [ -e $JAR ] || fatalError "'$JAR' does not exist\ncheck ./compile settings"
+# java --module-path "$JAVAFX" --add-modules "$MODULES" -jar "$JAR"

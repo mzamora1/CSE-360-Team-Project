@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# This script will create a native executable for your host system in OUTDIR
+# Relies on settings from settings.sh and compilation from ./compile
+# Usage: ./package
+
+source settings.sh
+
+assertHasCommands jlink
+
+if [ -d "$PACKAGE_OUTDIR" ]; then
+    # remove old packaged image
+    rm -r --force "$PACKAGE_OUTDIR"
+    assertOk "failed to remove old packaged image at '$PACKAGE_OUTDIR'"
+    success "cleaned '$PACKAGE_OUTDIR'"
+fi
+[ -e "$OUTDIR/$PACKAGE/$MAIN_CLASS.class" ] || fatalError "$OUTDIR/$PACKAGE/$MAIN_CLASS.class does not exist\n" "you must './compile' before you './package'"
+
+echo "Creating new package..."
+# create new package
+PACKAGECOMMAND=$( echo jlink --launcher $PACKAGE=$PACKAGE/$PACKAGE.$MAIN_CLASS --strip-debug --compress=2 --no-man-pages --no-header-files --module-path $JAVAFX:$OUTDIR --add-modules $PACKAGE --output $PACKAGE_OUTDIR )
+echo $PACKAGECOMMAND
+$PACKAGECOMMAND
+assertOk "failed to create new package '$PACKAGE_OUTDIR'"
+success "created executable in '$PACKAGE_OUTDIR'\nRun with './$PACKAGE_OUTDIR/bin/$PACKAGE'"
+
+# copy shared libs into runtime lib folder. These libs are platform dependent
+echo "Copying shared libraries..."
+find "$JAVAFX/" -type f -not -name '*.jar' -print0 | xargs -0 -I sharedlib cp sharedlib "$PACKAGE_OUTDIR/lib"
+assertOk "failed to copy javafx runtime libs to package runtime libs"
+success "Done"
+
+# to run the packaged image use
+# ./$PACKAGE_OUTDIR/bin/$PACKAGE
