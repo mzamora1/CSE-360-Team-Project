@@ -40,26 +40,14 @@ error() {
     printf "$( red "ERROR" ): $*\n"
     return 1
 }
-assert() {
-    # echo $1
-    if ! [ $1 ]; then
-        error "$2"
-        until [ -z "$3" ]; do  # Until all parameters used up . . .
-            echo "$3"
-            shift
-        done
-        exit 1
-    fi
-}
 ok() { 
     [ $? -eq 0 ]
     return $?
 }
-assertOk() { assert "$? -eq 0" "$@"; }
 assertHasCommands() { 
     for COMMAND in $1; do
         command -V $COMMAND > /dev/null 2>&1
-        if [ ! $? -eq 0 ]; then
+        if ! ok; then
             error "cannot find '$COMMAND'\nMake sure it is visible and added to your \$PATH by typing '$COMMAND --version'"
             until [ -z "$2" ]; do  # Until all parameters used up . . .
                 echo "$2"
@@ -89,8 +77,7 @@ askForFx() {
     done
 }
 add_setting() {
-    printf "\n$1='$2'\n" >> mysettings.sh
-    assertOk "failed saving $1 to mysettings.sh"
+    printf "\n$1='$2'\n" >> mysettings.sh || fatalError "failed saving $1 to mysettings.sh"
     warning "added $1='$2' in mysettings.sh"
 }
 

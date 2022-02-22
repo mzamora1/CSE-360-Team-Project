@@ -6,13 +6,11 @@
 source settings.sh
 
 assertHasCommands java
-assert "-r $OUTDIR/$PACKAGE/$MAIN_CLASS.class" "you must compile '$PACKAGE' before executing"
+[ -r "$OUTDIR/$PACKAGE/$MAIN_CLASS.class" ] || fatalError "you must compile '$PACKAGE' before executing"
 
 EXECUTECOMMAND=$( echo java --module-path $JAVAFX --add-modules $MODULES --class-path $OUTDIR $PACKAGE.$MAIN_CLASS )
 echo $EXECUTECOMMAND
-$EXECUTECOMMAND
-
-assertOk "returned with exit code $?"
+$EXECUTECOMMAND || fatalError "returned with exit code $?"
 
 
 # JAR="$OUTDIR/$PACKAGE.jar"

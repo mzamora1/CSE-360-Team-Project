@@ -28,9 +28,6 @@
 # the correct arguments. It will also help set up commit verification using gpg.
 
 
-source settings.sh
-assertHasCommands git
-
 # Git settings
 # name of GitHub repository
 REPO_NAME="CSE-360-Team-Project"
@@ -38,20 +35,47 @@ REPO_NAME="CSE-360-Team-Project"
 CORRECT_ORIGIN="https://github.com/mzamora1/$REPO_NAME.git"
 # default branch to pull and push to
 DEFAULT_BRANCH=main
-
-USAGE="$( purple "Usage" ): ./git-push <path> \"<message>\" <remote-branch-name? = 'main'>\n\tpath: single path to files you want to 'git add'\n\tmessage: string representing commit message (must include \"\" if multiworded)\n\tremote-branch-name: name of branch to push to (optional, defaults to main branch)\n"
-
+askYesNo() {
+    printf "$1\n(yes/no): "
+    read CHOICE <&1
+    case $CHOICE in 
+        yes | y | Y | YES | 1) 
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+ok() { 
+    [ $? -eq 0 ]
+    return $?
+}
+yellow() { printf "\e[1;33m$*\e[0m"; }
+warning() { printf "$( yellow "WARNING" ): $*\n"; }
+green() { printf "\e[1;32m$*\e[0m"; }
+success() { printf "$( green "SUCCESS" ): $*\n"; }
+red() { printf "\e[1;31m$*\e[0m"; }
+error() {
+    printf "$( red "ERROR" ): $*\n"
+    return 1
+}
+fatalError() { error "$*" ; exit 1 ; }
 CWD=$( pwd )
-
-
 if ! [ -d "$CWD/.git" ]; then
     askYesNo "$( warning "current working directory does not point to a local git repository\nDo you want to clone the repository into its own folder in this directory?" )"
-    assertOk "rerun in a local git repository"
-    git clone $CORRECT_ORIGIN
+    ok || fatalError "rerun in a local git repository"
+    git clone $CORRECT_ORIGIN || fatalError "could not clone repository"
     success "cloned $REPO_NAME to '$CWD/$REPO_NAME'"
     echo "Use 'cd $REPO_NAME' to work in the local repository."
     cd "$REPO_NAME"
 fi
+
+
+source settings.sh
+assertHasCommands git
+
+USAGE="$( purple "Usage" ): ./git-push <path> \"<message>\" <remote-branch-name? = 'main'>\n\tpath: single path to files you want to 'git add'\n\tmessage: string representing commit message (must include \"\" if multiworded)\n\tremote-branch-name: name of branch to push to (optional, defaults to main branch)\n"
 
 REMOTE_BRANCH=$( [ -n "$3" ] && echo "$3" || echo $DEFAULT_BRANCH )
 LOCAL_BRANCH=$( git branch --show-current )
@@ -60,7 +84,7 @@ EMAIL=$( git config --get user.email )
 SIGNING_KEY=$( git config --get user.signingkey )
 ORIGIN=$( git config --get remote.origin.url )
 
-if [ ! $? -eq 0 ]; then
+if ! ok; then
     echo "$( yellow 'adding remote origin' ): $CORRECT_ORIGIN"
     git remote add origin "$CORRECT_ORIGIN"
 elif [ "$ORIGIN" != "$CORRECT_ORIGIN" ]; then
@@ -93,8 +117,8 @@ if [ "$LOCAL_BRANCH" != "$REMOTE_BRANCH" ]; then
         LOCAL_BRANCH="$REMOTE_BRANCH"
         git fetch origin
         git checkout -b "$LOCAL_BRANCH" "origin/$REMOTE_BRANCH"
-        assertOk "failed to checkout '$REMOTE_BRANCH', see output above"
-        echo "$(yellow "switched local branch") to '$REMOTE_BRANCH'"
+        ok || fatalError "failed to checkout '$REMOTE_BRANCH', see output above"
+        echo "$( yellow "switched local branch" ) to '$REMOTE_BRANCH'"
     fi
     echo "ok continuing..."
 elif [ -z "$( git branch -r | grep -F "origin/$REMOTE_BRANCH" )" ]; then 
@@ -128,7 +152,7 @@ init_gpg() {
                 "use key id: $SIGNING_KEY")
                     if [ "$( extract_keyalgo $SIGNING_KEY )" != "rsa4096" ]; then
                         askYesNo "$( warning "key id($SIGNING_KEY) does not use default algo 'rsa4096' so it may not work correctly with github.\nDo you still want to set it as your signing key?" )"
-                        assertOk "rerun with '--init-gpg' to make a new key"
+                        ok || fatalError "rerun with '--init-gpg' to make a new key"
                     fi
                     set_signingkey $SIGNING_KEY
                     exit 0
@@ -161,7 +185,7 @@ Passphrase: $PASSPHRASE
 %commit
 %echo Finished creating key.
 GPGConfig
-    assertOk "could not generate keys, see output above." \
+    ok || fatalError "could not generate keys, see output above.\n" \
     "gpg is optional, so if this is too much of a pain then dont include '--init-gpg' argument."
     SIGNING_KEY=$( extract_keyid "$COMMENT" )
     printf "\n$( purple "Public GPG Key" ): \n\n"
@@ -185,8 +209,8 @@ fi
 
 if [ "$(git config --get commit.gpgsign )" == "true" ]; then
     extract_keys $SIGNING_KEY | grep "$NAME.\+$EMAIL" > /dev/null 2>&1
-    assertOk "Current user (name: '$NAME', email: '$EMAIL') does not match current signing key-id (signingkey: $SIGNING_KEY)" \
-    "Change git user configuration or create a new key for this user using './git-push --init-gpg'" \
+    ok || fatalError "Current user (name: '$NAME', email: '$EMAIL') does not match current signing key-id (signingkey: $SIGNING_KEY)\n" \
+    "Change git user configuration or create a new key for this user using './git-push --init-gpg'\n" \
     "If errors still occur after making a new key then disable verified commits with 
     'git config --global commit.gpgsign 'false''"
 fi
@@ -198,10 +222,10 @@ fi
 
 
 git pull origin "$REMOTE_BRANCH"
-assertOk "could be from conflicting merge between main branch and local repository" \
-"Solution: use 'git mergetool' or 'git diff' to find and correct each merge conflict." \
-"Solution: if you want to overwrite all local conflicts with remote state use 'git pull --force origin main'" \
-"Solution: if you want to overwrite all remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin main'" \
+ok || fatalError "could be from conflicting merge between main branch and local repository\n" \
+"Solution: use 'git mergetool' or 'git diff' to find and correct each merge conflict.\n" \
+"Solution: if you want to overwrite all local conflicts with remote state use 'git pull --force origin main\n" \
+"Solution: if you want to overwrite all remote conflicts with local state use 'git add . && git commit -m \"message\" && git push origin main'\n" \
 "Solution: use 'git fetch origin' if can't find remote branch"
 success "fetched and merged main branch"
 

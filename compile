@@ -5,38 +5,33 @@
 # ie. to compile with debug symbols './compile -g'
 
 source settings.sh
-assertHasCommands javac 
+assertHasCommands javac "make sure your jdk's /bin folder is added to your path"
 FLAGS=$@
 SRCS=$( find "$JAVADIR/" -type f -name '*.java' )
-assertOk "error finding java files in '$JAVADIR'"
+ok || fatalError "error finding java files in '$JAVADIR'"
 
 
 if [ -d "$OUTDIR" ]; then
     # clean output directory
-    rm -r --force "$OUTDIR/"
-    assertOk "failed to clean '$OUTDIR' before compilation"
+    rm -r --force "$OUTDIR/" || fatalError "failed to clean '$OUTDIR' before compilation"
 else mkdir -p "$OUTDIR" || fatalError "could not make output directory '$OUTDIR'"
 fi
 
 
 # copy resource files into package output directory
 # (RESOURCEDIR should resemble JAVADIR structure for packages with resources) 
-cp -r "$RESOURCEDIR/" "$OUTDIR"
-assertOk "failed to copy '$RESOURCEDIR' to '$OUTDIR'"
+cp -r "$RESOURCEDIR/" "$OUTDIR" || fatalError "failed to copy '$RESOURCEDIR' to '$OUTDIR'"
 
 # compile the program to output directory
 COMPILECOMMAND=$( echo javac -d "$OUTDIR" --module-path "$JAVAFX" --add-modules $MODULES $FLAGS $SRCS )
 echo $COMPILECOMMAND
-$COMPILECOMMAND
-assertOk "failed to compile, see output above"
+$COMPILECOMMAND || fatalError "failed to compile, see output above"
 success "compiled package '$PACKAGE' to '$OUTDIR'"
 
 # # compress and package program into JAR file
-# jar cfe "$OUTDIR/$PACKAGE.jar" $PACKAGE.$MAIN_CLASS -C "$OUTDIR" .
-# assertOk "failed to package jar file"
+# jar cfe "$OUTDIR/$PACKAGE.jar" $PACKAGE.$MAIN_CLASS -C "$OUTDIR" . || fatalError "failed to package jar file"
 
 # # delete now unneeded .class files from output directory so we can upload output directory straight to github
-# find "$OUTDIR/" -not -name "$PACKAGE.jar" -not -path "$OUTDIR/" -delete
-# assertOk "failed to cleanup '$OUTDIR' after compilation"
+# find "$OUTDIR/" -not -name "$PACKAGE.jar" -not -path "$OUTDIR/" -delete || fatalError "failed to cleanup '$OUTDIR' after compilation"
 
 # success "created '$PACKAGE.jar' in directory '$OUTDIR' "
