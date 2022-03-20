@@ -1,0 +1,26 @@
+public class Employee {
+	
+	private int empID;
+	private string name;
+	private boolean admin;
+
+public Employee(int startID, string startName, boolean startAdmin) {
+	
+	empID = startID;
+	name = startName;
+	admin = startAdmin;
+}
+
+public void setempID(int newID) {
+	empID = newID;
+}
+
+public void setName (string newName) {
+	name = newName;
+}
+
+public void setAdmin (boolean newAdmin) {
+	admin = newAdmin;
+}
+
+}
