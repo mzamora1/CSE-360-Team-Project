@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="restaurant.CreateAccount">
+   <children>
+      <Label layoutX="168.0" layoutY="23.0" text="Create An Account">
+         <font>
+            <Font size="32.0" />
+         </font>
+      </Label>
+      <Label layoutX="110.0" layoutY="99.0" text="Email: ">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <TextField fx:id="emailField" layoutX="167.0" layoutY="101.0" prefHeight="25.0" prefWidth="264.0" />
+      <Label layoutX="74.0" layoutY="147.0" text="Password: ">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <TextField fx:id="passwordField" layoutX="167.0" layoutY="149.0" prefHeight="25.0" prefWidth="264.0" />
+      <TextField fx:id="cardNumField" layoutX="168.0" layoutY="213.0" prefHeight="25.0" prefWidth="264.0" promptText="card number" />
+      <TextField fx:id="ccvField" layoutX="167.0" layoutY="257.0" prefHeight="25.0" prefWidth="93.0" promptText="ccv" />
+      <TextField fx:id="expriationField" layoutX="282.0" layoutY="257.0" promptText="expiration: (mm/yy)" />
+      <RadioButton fx:id="adminOption" layoutX="178.0" layoutY="298.0" mnemonicParsing="false" text="Admin Account" />
+      <RadioButton layoutX="297.0" layoutY="298.0" mnemonicParsing="false" selected="true" text="Customer Account" />
+      <Button layoutX="244.0" layoutY="324.0" mnemonicParsing="false" onAction="#createAccount" text="Submit">
+         <font>
+            <Font size="17.0" />
+         </font>
+      </Button>
+   </children>
+</AnchorPane>
