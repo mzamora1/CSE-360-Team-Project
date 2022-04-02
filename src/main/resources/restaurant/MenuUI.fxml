@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="551.0" prefWidth="794.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <HBox prefHeight="82.0" prefWidth="1024.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button mnemonicParsing="false" text="Back">
+                     <HBox.margin>
+                        <Insets left="20.0" top="25.0" />
+                     </HBox.margin>
+                  </Button>
+                  <ImageView fitHeight="68.0" fitWidth="56.0" pickOnBounds="true" preserveRatio="true">
+                     <HBox.margin>
+                        <Insets left="10.0" top="5.0" />
+                     </HBox.margin>
+                     <image>
+                        <Image url="@../../../Downloads/blank-profile-picture-973460_960_720.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </HBox>
+         </top>
+         <center>
+            <VBox prefHeight="672.0" prefWidth="487.0" BorderPane.alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="81.0" prefWidth="504.0">
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="MENU" underline="true">
+                           <font>
+                              <Font size="31.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </HBox>
+                  <ScrollPane prefHeight="602.0" prefWidth="504.0">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" />
+                    </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+         </center>
+         <right>
+            <VBox prefHeight="672.0" prefWidth="260.0" BorderPane.alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="32.0" prefWidth="260.0">
+                     <children>
+                        <Label text="Search Items" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_CENTER" prefHeight="29.0" prefWidth="260.0">
+                     <children>
+                        <TextField promptText="🔍" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="58.0" prefWidth="260.0">
+                     <children>
+                        <Label text="Cart">
+                           <font>
+                              <Font name="System Bold" size="20.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="200.0" prefWidth="260.0">
+                     <children>
+                        <ScrollPane prefHeight="200.0" prefWidth="234.0">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="202.0" prefWidth="214.0" />
+                          </content>
+                        </ScrollPane>
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_CENTER" prefHeight="136.0" prefWidth="260.0">
+                     <children>
+                        <Button mnemonicParsing="false" text="Checkout">
+                           <HBox.margin>
+                              <Insets top="10.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+            </VBox>
+         </right>
+         <left>
+            <VBox prefHeight="672.0" prefWidth="260.0" BorderPane.alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="49.0" prefWidth="260.0">
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Item Name" underline="true">
+                           <font>
+                              <Font size="22.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="27.0" prefWidth="260.0">
+                     <children>
+                        <Label text="INSERT NAME">
+                           <font>
+                              <Font size="15.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="131.0" prefWidth="260.0">
+                     <children>
+                        <ImageView fitHeight="136.0" fitWidth="337.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../../Downloads/Eq_it-na_pizza-margherita_sep2005_sml.jpg" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="58.0" prefWidth="142.0">
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Ingredients" underline="true">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </HBox>
+                  <VBox alignment="CENTER" prefHeight="271.0" prefWidth="260.0">
+                     <children>
+                        <Label prefHeight="241.0" prefWidth="161.0" text="insert whatever ingredients" />
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </left>
+      </BorderPane>
+   </children>
+</AnchorPane>
