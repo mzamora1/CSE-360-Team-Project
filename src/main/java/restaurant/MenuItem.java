@@ -2,7 +2,6 @@ package restaurant;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -31,7 +30,6 @@ public class MenuItem extends VBox {
     Type type;
     String[] ingredients;
     int prepareTime;
-    
 
     MenuItem(EventHandler<? super MouseEvent> onClick) {
         super(10);
@@ -84,8 +82,8 @@ public class MenuItem extends VBox {
         ingredients = val;
         return this;
     }
-    
-    MenuItem setPrepareTime(int val){
+
+    MenuItem setPrepareTime(int val) {
         prepareTime = val;
         return this;
     }

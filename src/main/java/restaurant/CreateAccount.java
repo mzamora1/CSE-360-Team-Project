@@ -16,8 +16,7 @@ public class CreateAccount {
     @FXML
     TextField ccvField;
     @FXML
-    TextField expirationField;
-
+    TextField expriationField;
     @FXML
     RadioButton adminOption;
 
