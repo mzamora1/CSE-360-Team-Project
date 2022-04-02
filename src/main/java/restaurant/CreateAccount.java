@@ -16,7 +16,7 @@ public class CreateAccount {
     @FXML
     TextField ccvField;
     @FXML
-    TextField expriationField;
+    TextField expirationField;
     @FXML
     RadioButton adminOption;
 
@@ -24,14 +24,15 @@ public class CreateAccount {
     void createAccount() throws IOException {
         if (!emailField.getText().isEmpty() && !passwordField.getText().isEmpty() && !cardNumField.getText().isEmpty()
                 && !ccvField.getText().isEmpty()) {
+            var newUser = new Customer(emailField.getText(), passwordField.getText(), adminOption.isSelected());
+
+            newUser.setCardCCV(ccvField.getText());
+            newUser.setCardExp(expirationField.getText());
+            newUser.setCardNum(cardNumField.getText());
+
+            App.user = newUser;
 
             App.setRoot("login");
-
-            App.customer = new Customer(emailField.getText(), passwordField.getText(), adminOption.isSelected());
-
-            App.customer.setCardCCV(ccvField.getText());
-            // newUser.setCardExp(expirationField.getText());
-            App.customer.setCardNum(cardNumField.getText());
         }
     }
 }

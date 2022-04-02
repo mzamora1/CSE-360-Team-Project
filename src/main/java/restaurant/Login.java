@@ -49,8 +49,8 @@ public class Login {
 
     private boolean checkLogin() {
         System.out.println();
-        if (App.customer != null && App.customer.getName().equals(usernameField.getText())
-                && App.customer.getPass().equals(passwordField.getText())) {
+        if (App.user != null && App.user.getName().equals(usernameField.getText())
+                && App.user.getPass().equals(passwordField.getText())) {
             return true;
         } else {
             return false;
