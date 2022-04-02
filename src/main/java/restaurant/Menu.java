@@ -36,6 +36,7 @@ public class Menu implements Initializable {
         App.setRoot("checkOut");
     }
 
+    // called when a .fxml file with this class as a controller is loaded
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         System.out.println("Menu init url: " + arg0);

@@ -16,6 +16,7 @@ public class App extends Application {
 
     private static Scene scene;
     private static final Stack<Parent> prevParents = new Stack<>();
+    public static Customer customer;
 
     @Override
     public void start(Stage stage) throws IOException {

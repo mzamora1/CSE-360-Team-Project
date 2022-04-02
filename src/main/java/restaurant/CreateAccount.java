@@ -22,6 +22,16 @@ public class CreateAccount {
 
     @FXML
     void createAccount() throws IOException {
-        App.setRoot("menu");
+        if (!emailField.getText().isEmpty() && !passwordField.getText().isEmpty() && !cardNumField.getText().isEmpty()
+                && !ccvField.getText().isEmpty()) {
+
+            App.setRoot("login");
+
+            App.customer = new Customer(emailField.getText(), passwordField.getText(), adminOption.isSelected());
+
+            App.customer.setCardCCV(ccvField.getText());
+            // newUser.setCardExp(expirationField.getText());
+            App.customer.setCardNum(cardNumField.getText());
+        }
     }
 }
