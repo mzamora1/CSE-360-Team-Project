@@ -13,6 +13,7 @@
       <TextField fx:id="passwordField" layoutX="226.0" layoutY="238.0" promptText="password" />
       <Button layoutX="226.0" layoutY="275.0" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: black;" text="Log In" textFill="WHITE" />
       <Button layoutX="226.0" layoutY="314.0" mnemonicParsing="false" onAction="#switchToCreateAccount" prefHeight="25.0" prefWidth="149.0" text="Create Account" />
+      <Button layoutX="226.0" layoutY="348.0" mnemonicParsing="false" onAction="#switchToMenu" prefHeight="25.0" prefWidth="149.0" text="Continue as a Guest" />
       <Label alignment="CENTER" layoutX="225.0" layoutY="88.0" prefHeight="73.0" prefWidth="149.0" text="LOGO">
          <font>
             <Font size="50.0" />
