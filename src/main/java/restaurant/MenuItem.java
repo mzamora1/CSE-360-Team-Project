@@ -39,13 +39,14 @@ public class MenuItem extends VBox {
     }
 
     MenuItem(String iname, String path, float iprice, Type itype,
-            String[] ingred) {
+            String[] ingred, int ptime) {
         super(10);
         name = iname;
         image = new Image(path);
         price = iprice;
         type = itype;
         ingredients = ingred;
+        prepareTime = ptime;
         build();
     }
 
