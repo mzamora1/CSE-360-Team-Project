@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Stack;
 
 /**
  * JavaFX App
@@ -14,7 +15,7 @@ import java.io.IOException;
 public class App extends Application {
 
     private static Scene scene;
-    private static Parent prevParent;
+    private static final Stack<Parent> prevParents = new Stack<>();
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -24,12 +25,13 @@ public class App extends Application {
     }
 
     static void setRoot(String fxml) throws IOException {
-        prevParent = scene.getRoot();
+        prevParents.push(scene.getRoot());
         scene.setRoot(loadFXML(fxml));
     }
 
     static void goBack() {
-        scene.setRoot(prevParent);
+        if (!prevParents.empty())
+            scene.setRoot(prevParents.pop());
     }
 
     private static Parent loadFXML(String fxml) throws IOException {

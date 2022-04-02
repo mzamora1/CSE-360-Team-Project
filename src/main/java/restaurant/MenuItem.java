@@ -1,9 +1,12 @@
 package restaurant;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 public class MenuItem extends VBox {
@@ -24,16 +27,18 @@ public class MenuItem extends VBox {
 
     String name;
     Image image;
-    double price;
+    float price;
     Type type;
     String[] ingredients;
 
-    MenuItem() {
-        super();
+    MenuItem(EventHandler<? super MouseEvent> onClick) {
+        super(10);
+        setOnMouseClicked(onClick);
     }
 
-    MenuItem(String iname, String path, double iprice, Type itype, String[] ingred) {
-        super();
+    MenuItem(String iname, String path, float iprice, Type itype,
+            String[] ingred) {
+        super(10);
         name = iname;
         image = new Image(path);
         price = iprice;
@@ -43,21 +48,6 @@ public class MenuItem extends VBox {
     }
 
     MenuItem build() {
-        // var children = getChildren();
-        // if(name.isEmpty())
-        // children.add(new Label(name));
-        // String[] validSuffixes = { "bmp", "gif", "jpeg", "png" };
-        // boolean isValid = false;
-        // for (var suffix : validSuffixes)
-        // if (imgPath.endsWith(suffix)) {
-        // isValid = true;
-        // break;
-        // }
-        // if (!isValid)
-        // throw new IllegalArgumentException(
-        // "Supplied image is not one of these formats:\n" + validSuffixes);
-
-        // System.out.println("Image path: " + imgPath);
         setAlignment(Pos.CENTER);
         getChildren().addAll(
                 new Label(name),
@@ -77,7 +67,7 @@ public class MenuItem extends VBox {
         return this;
     }
 
-    MenuItem setPrice(double val) {
+    MenuItem setPrice(float val) {
         price = val;
         return this;
     }
