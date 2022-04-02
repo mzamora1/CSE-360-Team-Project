@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -20,9 +22,11 @@ public class Menu implements Initializable {
 
     @FXML
     VBox menu;
+    static ObservableList<Node> menuItems;
 
     @FXML
     VBox cart;
+    static ObservableList<Node> cartItems;
 
     @FXML
     ScrollPane menuContainer;
@@ -37,23 +41,13 @@ public class Menu implements Initializable {
         System.out.println("Menu init url: " + arg0);
         System.out.println("found: " +
                 App.class.getResource("pasta.jpeg").toString());
-
-        EventHandler<? super MouseEvent> onClick = event -> {
-            event.consume();
-            var clicked = (MenuItem) event.getSource();
-            System.out.println(clicked);
-            var item = new CartItem(
-                    clicked.name, clicked.price, 1);
-            item.setPrefWidth(cart.getWidth());
-            cart.getChildren().add(item);
-        };
-        MenuItem[] menuItems = {
-                new MenuItem(onClick).setName("pasta")
-                        .setImage(new Image(App.class.getResource("pasta.jpeg").toString(),
-                                menuContainer.getPrefWidth(),
-                                menuContainer.getPrefHeight(), true, true))
-                        .setPrice(20.0f).build() };
-        menu.getChildren().addAll(menuItems);
+        cartItems = cart.getChildren();
+        menuItems = menu.getChildren();
+        menuItems.addAll(new MenuItem().setName("pasta")
+                .setImage(new Image(App.class.getResource("pasta.jpeg").toString(),
+                        menuContainer.getPrefWidth(),
+                        menuContainer.getPrefHeight(), true, true))
+                .setPrice(20.0f).build());
     }
 
     @FXML

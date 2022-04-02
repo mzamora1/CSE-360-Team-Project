@@ -2,10 +2,12 @@ package restaurant;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class MenuItem extends VBox {
@@ -31,9 +33,8 @@ public class MenuItem extends VBox {
     String[] ingredients;
     int prepareTime;
 
-    MenuItem(EventHandler<? super MouseEvent> onClick) {
+    MenuItem() {
         super(10);
-        setOnMouseClicked(onClick);
     }
 
     MenuItem(String iname, String path, float iprice, Type itype,
@@ -50,11 +51,28 @@ public class MenuItem extends VBox {
 
     MenuItem build() {
         setAlignment(Pos.CENTER);
+        HBox buttons = new HBox(10);
+        buttons.setAlignment(Pos.CENTER);
+        Button addToCartBtn = new Button("Add To Cart");
+
+        addToCartBtn.setOnMouseClicked(event -> {
+            event.consume();
+            System.out.println(this);
+            Menu.cartItems.add(new CartItem(name, price, 1));
+        });
+        Button removeBtn = new Button("Remove");
+        removeBtn.setOnMouseClicked(event -> {
+            event.consume();
+            System.out.println(this);
+            Menu.menuItems.remove(this);
+        });
+        buttons.getChildren().addAll(addToCartBtn, removeBtn);
         getChildren().addAll(
                 new Label(name),
                 new ImageView(image),
                 new Label("Price: $" + price),
-                new Label("Ingredients: " + ingredients));
+                new Label("Ingredients: " + ingredients),
+                buttons);
         return this;
     }
 
