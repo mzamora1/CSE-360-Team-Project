@@ -1,3 +1,5 @@
+package restaurant;
+
 public class Guest {
 
 	private String phoneNum;
@@ -5,9 +7,9 @@ public class Guest {
 	private String cardNum;
 	private String cardExp;
 	private String cardCCV;
-	
-	//setters
-	
+
+	// setters
+
 	public void setPhoneNum(String phoneNum) {
 		this.phoneNum = phoneNum;
 	}
@@ -27,27 +29,27 @@ public class Guest {
 	public void setCardCCV(String cardCCV) {
 		this.cardCCV = cardCCV;
 	}
-	
-	//getters
+
+	// getters
 
 	public String getPhoneNum() {
 		return phoneNum;
 	}
-	
+
 	public String getEmail() {
 		return email;
 	}
-	
+
 	public String getCardNum() {
 		return cardNum;
 	}
-	
+
 	public String getCardExp() {
 		return cardExp;
 	}
-	
+
 	public String getCardCCV() {
 		return cardCCV;
 	}
-	
+
 }

@@ -1,3 +1,5 @@
+package restaurant;
+
 public class Customer extends User {
 
 	private String phoneNum;
@@ -5,17 +7,17 @@ public class Customer extends User {
 	private String cardNum;
 	private String cardExp;
 	private String cardCCV;
-	
+
 	public int orderTime;
 	public int[] queue;
 	public int coupons;
-	
+
 	public Customer(String startName, String startPass, boolean startAdmin) {
 		super(startName, startPass, startAdmin);
 	}
-	
-	//setters
-	
+
+	// setters
+
 	public void setPhoneNum(String phoneNum) {
 		this.phoneNum = phoneNum;
 	}
@@ -35,25 +37,25 @@ public class Customer extends User {
 	public void setCardCCV(String cardCCV) {
 		this.cardCCV = cardCCV;
 	}
-	
-	//getters
+
+	// getters
 
 	public String getPhoneNum() {
 		return phoneNum;
 	}
-	
+
 	public String getEmail() {
 		return email;
 	}
-	
+
 	public String getCardNum() {
 		return cardNum;
 	}
-	
+
 	public String getCardExp() {
 		return cardExp;
 	}
-	
+
 	public String getCardCCV() {
 		return cardCCV;
 	}
