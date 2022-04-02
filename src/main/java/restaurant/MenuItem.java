@@ -30,6 +30,8 @@ public class MenuItem extends VBox {
     float price;
     Type type;
     String[] ingredients;
+    int prepareTime;
+    
 
     MenuItem(EventHandler<? super MouseEvent> onClick) {
         super(10);
@@ -79,6 +81,11 @@ public class MenuItem extends VBox {
 
     MenuItem setIngredients(String[] val) {
         ingredients = val;
+        return this;
+    }
+    
+    MenuItem setPrepareTime(int val){
+        prepareTime = val;
         return this;
     }
 }
