@@ -23,4 +23,9 @@ public class Login {
     private void switchToCreateAccount() throws IOException {
         App.setRoot("createAccount");
     }
+    
+    @FXML
+    private void switchToMenu() throws IOException {
+        App.setRoot("menu");
+    }
 }
