@@ -201,15 +201,13 @@ public class Menu implements Initializable {
             });
         } else {
             // remove admin abilities from menu
-            var last = menuItems.get(menuItems.size() - 1);
-            var lastData = (String) last.getUserData();
-            if (lastData == "newItemBtn" || lastData == "itemInput") {
-                menuItems.remove(last);
-            }
-            menuItems.forEach(item -> {
+            for (int i = 0; i < menuItems.size(); ++i) {
+                var item = menuItems.get(i);
                 if (MenuItem.class.isInstance(item))
                     ((MenuItem) item).removeRemoveBtn();
-            });
+                else
+                    menuItems.remove(item);
+            }
         }
     }
 
