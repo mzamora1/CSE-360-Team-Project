@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.event.ActionEvent;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -43,6 +45,9 @@ public class Menu implements Initializable {
     @FXML
     private Label priceTotal;
     public static Label mypriceTotal;
+
+    @FXML
+    private CheckBox couponCheck;
 
     @FXML
     private void switchToCheckOut() throws IOException {
@@ -219,6 +224,12 @@ public class Menu implements Initializable {
                 }
 
             }
+        }
+    }
+
+    public void coupon(ActionEvent c) throws IOException{
+        if(couponCheck.isSelected()) {
+            Menu.cartItems.add(new CartItem(Menu.cartPrefWidth, "coupon", -5f, 1));
         }
     }
 
