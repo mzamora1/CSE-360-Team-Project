@@ -54,7 +54,8 @@ public class Checkout {
 			emailField.setText(user.getEmail());
 		}
 		// someone will have to change the layout for the size to work right
-		cartPrefWidth = cartContainer.getPrefWidth();
+		cartPrefWidth = 170;// cart.getPrefWidth();
+		System.out.println("cart width: " + cartPrefWidth);
 		Menu.cartItems.forEach(item -> ((CartItem) item).build(cartPrefWidth));
 		cart.getChildren().setAll(Menu.cartItems);
 	}

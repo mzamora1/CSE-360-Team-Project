@@ -1,6 +1,5 @@
 package restaurant;
 
-import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -28,15 +27,12 @@ public class CartItem extends HBox {
         nameElm.setWrapText(true);
         nameElm.setMaxWidth(maxWidth * .50);
         nameElm.setTextAlignment(TextAlignment.CENTER);
-        nameElm.setAlignment(Pos.CENTER);
         priceElm.setWrapText(true);
         priceElm.setMaxWidth(maxWidth * .25);
-        // priceElm.setTextAlignment(TextAlignment.CENTER);
-        priceElm.setAlignment(Pos.CENTER);
+        priceElm.setTextAlignment(TextAlignment.CENTER);
         quantElm.setWrapText(true);
         quantElm.setMaxWidth(maxWidth * .25);
-        // quantElm.setTextAlignment(TextAlignment.CENTER);
-        quantElm.setAlignment(Pos.CENTER);
+        quantElm.setTextAlignment(TextAlignment.CENTER);
 
         getChildren().setAll(new Group(nameElm), new Group(priceElm), quantElm);
         return this;

@@ -144,7 +144,6 @@ public class Menu implements Initializable {
 
         if (App.user.getAdmin()) {
             // add admin abilities to menu
-
             Button addMenuItemBtn = new Button("New Item");
             addMenuItemBtn.setUserData("newItemBtn");
 
@@ -191,6 +190,8 @@ public class Menu implements Initializable {
                         createMenuItemBtn);
                 menuItems.add(itemInput);
             });
+
+            menuItems.forEach(item -> ((MenuItem) item).build());
             menuItems.add(addMenuItemBtn);
             // scroll to bottom when item is added to menu
             menu.heightProperty().addListener((observable, old, newVal) -> {
