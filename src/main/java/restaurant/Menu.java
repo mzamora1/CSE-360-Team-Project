@@ -205,8 +205,11 @@ public class Menu implements Initializable {
                 var item = menuItems.get(i);
                 if (MenuItem.class.isInstance(item))
                     ((MenuItem) item).removeRemoveBtn();
-                else
+                else {
                     menuItems.remove(item);
+                    --i;
+                }
+
             }
         }
     }
