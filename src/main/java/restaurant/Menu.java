@@ -55,7 +55,7 @@ public class Menu implements Initializable {
         menuPrefWidth = menuContainer.getPrefWidth();
         cartPrefWidth = cartContainer.getPrefWidth();
         if (cartItems != null) {
-            System.out.println("using exisiting cart items" + cartItems.size());
+            System.out.println("using exisiting cart items " + cartItems.size());
             cartItems.forEach(item -> {
                 ((CartItem) item).build(cartPrefWidth);
                 System.out.println(item);

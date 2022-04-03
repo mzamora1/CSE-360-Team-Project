@@ -10,6 +10,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 
 public class Checkout {
 
@@ -26,6 +27,15 @@ public class Checkout {
 	private Label b;
 
 	@FXML
+	TextField cardNumField;
+	@FXML
+	TextField ccvField;
+	@FXML
+	TextField expirationField;
+	@FXML
+	TextField emailField;
+
+	@FXML
 	private VBox cart;
 
 	@FXML
@@ -36,9 +46,15 @@ public class Checkout {
 	public void initialize() {
 		a.setText("People in line: " + num);
 		b.setText("Expected waiting time: " + (num * 5) + " minutes");
+		if (Customer.class.isInstance(App.user)) {
+			Customer user = (Customer) App.user;
+			cardNumField.setText(user.getCardNum());
+			ccvField.setText(user.getCardCCV());
+			expirationField.setText(user.getCardExp());
+			emailField.setText(user.getEmail());
+		}
 		// someone will have to change the layout for the size to work right
 		cartPrefWidth = cartContainer.getPrefWidth();
-		System.out.println("cart width:" + cartPrefWidth);
 		Menu.cartItems.forEach(item -> ((CartItem) item).build(cartPrefWidth));
 		cart.getChildren().setAll(Menu.cartItems);
 	}
