@@ -49,28 +49,32 @@ public class MenuItem extends VBox {
 
     MenuItem build() {
         setAlignment(Pos.CENTER);
-        HBox buttons = new HBox(10);
-        buttons.setAlignment(Pos.CENTER);
+        HBox buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+        var buttons = buttonContainer.getChildren();
 
         Button addToCartBtn = new Button("Add To Cart");
         addToCartBtn.setOnMouseClicked(event -> {
             event.consume();
             Menu.cartItems.add(new CartItem(name, price, 1));
         });
+        buttons.add(addToCartBtn);
 
-        Button removeBtn = new Button("Remove");
-        removeBtn.setOnMouseClicked(event -> {
-            event.consume();
-            Menu.menuItems.remove(this);
-        });
+        if (App.user.getAdmin()) {
+            Button removeBtn = new Button("Remove");
+            removeBtn.setOnMouseClicked(event -> {
+                event.consume();
+                Menu.menuItems.remove(this);
+            });
+            buttons.add(removeBtn);
+        }
 
-        buttons.getChildren().addAll(addToCartBtn, removeBtn);
         getChildren().addAll(
                 new Label(name),
                 new ImageView(image),
                 new Label("Price: $" + price),
                 new Label("Ingredients: " + ingredients),
-                buttons);
+                buttonContainer);
         return this;
     }
 
