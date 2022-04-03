@@ -144,6 +144,7 @@ public class Menu implements Initializable {
 
         if (App.user.getAdmin()) {
             // add admin abilities to menu
+
             Button addMenuItemBtn = new Button("New Item");
             addMenuItemBtn.setUserData("newItemBtn");
 
@@ -180,7 +181,6 @@ public class Menu implements Initializable {
             });
 
             addMenuItemBtn.setOnMouseClicked(event -> {
-                // addMenuItemBtn.setVisible(false);
                 menuItems.remove(addMenuItemBtn);
                 itemInput.getChildren().addAll(
                         nameInput,
@@ -192,6 +192,13 @@ public class Menu implements Initializable {
                 menuItems.add(itemInput);
             });
             menuItems.add(addMenuItemBtn);
+            // scroll to bottom when item is added to menu
+            menu.heightProperty().addListener((observable, old, newVal) -> {
+                if ((Double) newVal > (Double) old) {
+                    menuContainer.setVvalue((Double) old);
+                }
+
+            });
         } else {
             // remove admin abilities from menu
             var last = menuItems.get(menuItems.size() - 1);
