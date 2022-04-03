@@ -17,12 +17,18 @@ public class App extends Application {
     private static Scene scene;
     private static final Stack<Parent> prevParents = new Stack<>();
     public static User user;
+    private static Stage stage;
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage istage) throws IOException {
+        stage = istage;
         scene = new Scene(loadFXML("login"), 640, 480);
         stage.setScene(scene);
         stage.show();
+    }
+
+    public static Stage getStage() {
+        return stage;
     }
 
     static void setRoot(String fxml) throws IOException {
