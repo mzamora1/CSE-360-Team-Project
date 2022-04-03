@@ -13,20 +13,20 @@ public class CartItem extends HBox {
     float price;
     int quantity;
 
-    CartItem(String iname, float iprice, int iquant) {
+    CartItem(double maxWidth, String iname, float iprice, int iquant) {
         super(5);
         name = iname;
         price = iprice;
         quantity = iquant;
-        build();
+        build(maxWidth);
     }
 
-    CartItem build() {
+    CartItem build(double maxWidth) {
         // setAlignment(Pos.CENTER);
         Label nameElm = new Label(name),
                 priceElm = new Label(Float.toString(price)),
                 quantElm = new Label(Integer.toString(quantity));
-        var maxWidth = Menu.cartPrefWidth;
+        // var maxWidth = Menu.cartPrefWidth;
         nameElm.setWrapText(true);
         nameElm.setMaxWidth(maxWidth * .50);
         nameElm.setTextAlignment(TextAlignment.CENTER);
@@ -39,7 +39,6 @@ public class CartItem extends HBox {
         quantElm.setMaxWidth(maxWidth * .25);
         // quantElm.setTextAlignment(TextAlignment.CENTER);
         quantElm.setAlignment(Pos.CENTER);
-        var group = new Group(nameElm);
 
         getChildren().setAll(new Group(nameElm), new Group(priceElm), quantElm);
         return this;

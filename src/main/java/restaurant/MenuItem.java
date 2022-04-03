@@ -72,11 +72,11 @@ public class MenuItem extends VBox {
                 CartItem cartItem = (CartItem) item;
                 if (cartItem.name == name) {
                     cartItem.quantity++;
-                    cartItem.build();
+                    cartItem.build(Menu.cartPrefWidth);
                     return;
                 }
             }
-            Menu.cartItems.add(new CartItem(name, price, 1));
+            Menu.cartItems.add(new CartItem(Menu.cartPrefWidth, name, price, 1));
         });
         buttons.add(addToCartBtn);
 

@@ -49,14 +49,24 @@ public class Menu implements Initializable {
     // called when a .fxml file with this class as a controller is loaded
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
-
+        System.out.println("init menu");
         menu.setAlignment(Pos.CENTER);
         menu.setSpacing(30);
         cart.setAlignment(Pos.TOP_CENTER);
         cart.setSpacing(5);
         menuPrefWidth = menuContainer.getPrefWidth();
         cartPrefWidth = cartContainer.getPrefWidth();
-        cartItems = cart.getChildren();
+        if (cartItems != null) {
+            System.out.println("using exisiting cart items" + cartItems.size());
+            cartItems.forEach(item -> {
+                ((CartItem) item).build(cartPrefWidth);
+                System.out.println(item);
+            });
+            cart.getChildren().setAll(cartItems);
+            cartItems = cart.getChildren();
+        } else {
+            cartItems = cart.getChildren();
+        }
 
         if (menuItems != null) {
             // use already created menu
@@ -186,15 +196,15 @@ public class Menu implements Initializable {
             menuItems.add(addMenuItemBtn);
         } else {
             // remove admin abilities from menu
-            menuItems.forEach(item -> {
-                if (MenuItem.class.isInstance(item))
-                    ((MenuItem) item).removeRemoveBtn();
-            });
             var last = menuItems.get(menuItems.size() - 1);
             var lastData = (String) last.getUserData();
             if (lastData == "newItemBtn" || lastData == "itemInput") {
                 menuItems.remove(last);
             }
+            menuItems.forEach(item -> {
+                if (MenuItem.class.isInstance(item))
+                    ((MenuItem) item).removeRemoveBtn();
+            });
         }
     }
 

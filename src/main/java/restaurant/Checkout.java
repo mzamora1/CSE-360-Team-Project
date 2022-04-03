@@ -7,50 +7,60 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
-
-
+import javafx.scene.control.ScrollPane;
 
 public class Checkout {
-	
-	//random numbers for ppl + expected waiting time
+
+	// random numbers for ppl + expected waiting time
 	int max = 20;
 	int min = 1;
-	
+
 	Random randomNum = new Random();
-    int num = min + randomNum.nextInt(max);
-  
-    
+	int num = min + randomNum.nextInt(max);
+
 	@FXML
 	private Label a;
 	@FXML
 	private Label b;
-	
+
+	@FXML
+	private VBox cart;
+
+	@FXML
+	private ScrollPane cartContainer;
+	static double cartPrefWidth;
+
 	@FXML
 	public void initialize() {
 		a.setText("People in line: " + num);
 		b.setText("Expected waiting time: " + (num * 5) + " minutes");
-		
+		// someone will have to change the layout for the size to work right
+		cartPrefWidth = cartContainer.getPrefWidth();
+		System.out.println("cart width:" + cartPrefWidth);
+		Menu.cartItems.forEach(item -> ((CartItem) item).build(cartPrefWidth));
+		cart.getChildren().setAll(Menu.cartItems);
 	}
-	
-	//clicking order button
+
+	// clicking order button
 	public void order(ActionEvent a) throws IOException {
-		//alarm window which switched back to menu after pressing confirmation
+		// alarm window which switched back to menu after pressing confirmation
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle("Success");
 		alert.setHeaderText("Order successfully sent! Please press \"OK\" to be redirected back to the menu.");
 		alert.showAndWait();
-	
+
 		switchToMenu();
 	}
-	//back button
+
+	// back button
 	public void back(ActionEvent c) throws IOException {
-		switchToMenu();
+		App.goBack();
 	}
-	
-    private void switchToMenu() throws IOException {
-        App.setRoot("menu");
-    }
-    
-    
+
+	private void switchToMenu() throws IOException {
+		App.setRoot("menu");
+	}
+
 }
