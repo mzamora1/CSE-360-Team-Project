@@ -197,7 +197,6 @@ public class Menu implements Initializable {
                 if ((Double) newVal > (Double) old) {
                     menuContainer.setVvalue((Double) old);
                 }
-
             });
         } else {
             // remove admin abilities from menu
