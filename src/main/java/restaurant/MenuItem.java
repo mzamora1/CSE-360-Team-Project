@@ -85,7 +85,7 @@ public class MenuItem extends VBox {
                         cartItem.quantity--;
                         cartItem.build(Menu.cartPrefWidth);
                         return;
-                    }else{
+                    }else if(cartItem.name == name && cartItem.quantity <= 1){
                         Menu.cartItems.remove(cartItem);
                     }
                 }
