@@ -75,9 +75,25 @@ public class MenuItem extends VBox {
             Menu.cartItems.add(new CartItem(Menu.cartPrefWidth, name, price, 1));
         });
         buttons.add(addToCartBtn);
+        
+        Button rmvFromCartBtn = new Button ("Remove From Cart");
+        rmvFromCartBtn.setOnMouseClicked(event -> {
+                event.consume();
+                for (var item : Menu.cartItems) {
+                    CartItem cartItem = (CartItem) item;
+                    if (cartItem.name == name && cartItem.quantity > 1) {
+                        cartItem.quantity--;
+                        cartItem.build(Menu.cartPrefWidth);
+                        return;
+                    }else{
+                        Menu.cartItems.remove(cartItem);
+                    }
+                }
+        });
+        buttons.add(rmvFromCartBtn);
 
         if (App.user.getAdmin()) {
-            Button removeBtn = new Button("Remove");
+            Button removeBtn = new Button("Remove From Menu");
             removeBtn.setOnMouseClicked(event -> {
                 event.consume();
                 Menu.menuItems.remove(this);
