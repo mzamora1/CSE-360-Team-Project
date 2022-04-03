@@ -31,7 +31,7 @@ public class Menu implements Initializable {
 
     @FXML
     private void switchToCheckOut() throws IOException {
-        App.setRoot("checkOut");
+        App.setRoot("checkout");
     }
 
     // called when a .fxml file with this class as a controller is loaded
