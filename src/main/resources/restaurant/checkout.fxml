@@ -114,7 +114,7 @@
          <top>
             <HBox prefHeight="51.0" prefWidth="1024.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button mnemonicParsing="false" text="Back">
+                  <Button mnemonicParsing="false" onAction="#back" text="Back">
                      <HBox.margin>
                         <Insets left="30.0" top="20.0" />
                      </HBox.margin>
@@ -125,12 +125,12 @@
          <bottom>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label text="People in line:">
+                  <Label fx:id="a" text="People in line:">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <Label text="Expected wait:">
+                  <Label fx:id="b" text="Expected wait:">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
