@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 
-public class Checkout {
+public class Checkout{
 
 	// random numbers for ppl + expected waiting time
 	int max = 20;
@@ -21,6 +21,9 @@ public class Checkout {
 	Random randomNum = new Random();
 	int num = min + randomNum.nextInt(max);
 
+	@FXML
+	private Label price;
+	
 	@FXML
 	private Label a;
 	@FXML
@@ -46,6 +49,8 @@ public class Checkout {
 	public void initialize() {
 		a.setText("People in line: " + num);
 		b.setText("Expected waiting time: " + (num * 5) + " minutes");
+		
+		
 		if (Customer.class.isInstance(App.user)) {
 			Customer user = (Customer) App.user;
 			cardNumField.setText(user.getCardNum());
