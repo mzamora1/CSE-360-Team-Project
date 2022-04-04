@@ -230,6 +230,15 @@ public class Menu implements Initializable {
     public void coupon(ActionEvent c) throws IOException{
         if(couponCheck.isSelected()) {
             Menu.cartItems.add(new CartItem(Menu.cartPrefWidth, "coupon", -5f, 1));
+            updateTotalPrice();
+        }else{
+            for (var item : Menu.cartItems) {
+                CartItem cartItem = (CartItem) item;
+                if(cartItem.name == "coupon"){
+                    Menu.cartItems.remove(cartItem);
+                    updateTotalPrice();
+                }
+            }
         }
     }
 

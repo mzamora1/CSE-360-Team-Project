@@ -91,7 +91,7 @@
                   </HBox>
                   <HBox alignment="CENTER" prefHeight="46.0" prefWidth="424.0">
                      <children>
-                        <Label fx:id="price" text="Label" />
+                        <Label fx:id="price" text="Total Price: $0.00" />
                      </children>
                   </HBox>
                   <Button mnemonicParsing="false" onAction="#order" text="Order">
