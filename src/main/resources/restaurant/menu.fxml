@@ -10,11 +10,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="restaurant.Menu">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="restaurant.Menu">
    <children>
-      <ScrollPane fx:id="menuContainer" hbarPolicy="NEVER" layoutX="57.0" layoutY="88.0" prefHeight="258.0" prefWidth="341.0">
+      <ScrollPane fx:id="menuContainer" hbarPolicy="NEVER" layoutX="13.0" layoutY="88.0" prefHeight="258.0" prefWidth="400.0">
          <content>
-            <VBox fx:id="menu" prefHeight="255.0" prefWidth="340.0" />
+            <VBox fx:id="menu" prefHeight="255.0" prefWidth="399.0" />
          </content>
       </ScrollPane>
       <Label layoutX="264.0" layoutY="14.0" text="Menu">
