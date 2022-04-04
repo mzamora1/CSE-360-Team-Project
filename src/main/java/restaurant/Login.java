@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class Login {
 
@@ -12,6 +14,9 @@ public class Login {
 
     @FXML
     TextField passwordField;
+    
+    @FXML
+    private ImageView myImageView;
 
     /*
      * @FXML
@@ -23,6 +28,12 @@ public class Login {
      * }
      * }
      */
+    Image myImage = new Image(getClass().getResourceAsStream("alfredologo.PNG"));
+    
+    public void displayImage() {
+    	myImageView.setImage(myImage);
+    }
+    
 
     @FXML
     private void login() throws IOException {
