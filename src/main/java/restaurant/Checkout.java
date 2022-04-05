@@ -65,7 +65,6 @@ public class Checkout implements Initializable {
 		}
 		// someone will have to change the layout for the size to work right
 		double cartPrefWidth = 170;// cartContainer.getPrefWidth();
-		System.out.println("cart width: " + cartPrefWidth);
 
 		// App.cartItems.forEach(item -> ((CartItem) item).build(cartPrefWidth));
 		cart.getChildren().setAll(App.cartItems);
