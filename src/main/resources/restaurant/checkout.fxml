@@ -12,11 +12,11 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="restaurant.Checkout">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="restaurant.Checkout">
    <children>
       <BorderPane layoutX="353.0" layoutY="209.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
-            <VBox alignment="CENTER" prefHeight="617.0" prefWidth="543.0" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" prefHeight="654.0" prefWidth="424.0" BorderPane.alignment="CENTER">
                <BorderPane.margin>
                   <Insets left="300.0" right="300.0" />
                </BorderPane.margin>
@@ -73,7 +73,7 @@
                   </HBox>
                   <HBox alignment="CENTER" prefHeight="69.0" prefWidth="424.0">
                      <children>
-                        <VBox prefHeight="69.0" prefWidth="271.0">
+                        <VBox prefHeight="109.0" prefWidth="271.0">
                            <children>
                               <TextField fx:id="phoneField" promptText="Phone Number">
                                  <VBox.margin>
@@ -87,6 +87,11 @@
                               </TextField>
                            </children>
                         </VBox>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="46.0" prefWidth="424.0">
+                     <children>
+                        <Label fx:id="price" text="Total Price: $0.00" />
                      </children>
                   </HBox>
                   <Button mnemonicParsing="false" onAction="#order" text="Order">
@@ -109,7 +114,7 @@
             </HBox>
          </top>
          <bottom>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER" prefHeight="57.0" prefWidth="1024.0" BorderPane.alignment="CENTER">
                <children>
                   <Label fx:id="a" text="People in line:">
                      <font>

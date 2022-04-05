@@ -11,8 +11,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import static restaurant.Menu.mypriceTotal;
 
-public class Checkout {
+public class Checkout{
 
 	// random numbers for ppl + expected waiting time
 	int max = 20;
@@ -21,6 +22,10 @@ public class Checkout {
 	Random randomNum = new Random();
 	int num = min + randomNum.nextInt(max);
 
+	@FXML
+	private Label price;
+        public static Label myprice;
+	
 	@FXML
 	private Label a;
 	@FXML
@@ -44,8 +49,13 @@ public class Checkout {
 
 	@FXML
 	public void initialize() {
+                myprice = price;
 		a.setText("People in line: " + num);
 		b.setText("Expected waiting time: " + (num * 5) + " minutes");
+                
+                updateTotalPrice();
+		
+		
 		if (Customer.class.isInstance(App.user)) {
 			Customer user = (Customer) App.user;
 			cardNumField.setText(user.getCardNum());
@@ -79,5 +89,13 @@ public class Checkout {
 	private void switchToMenu() throws IOException {
 		App.setRoot("menu");
 	}
-
+        
+        public static void updateTotalPrice(){
+            float totalPrice = 0;
+            for (var item : Menu.cartItems) {
+                CartItem cartItem = (CartItem) item;
+                totalPrice += cartItem.price * cartItem.quantity;
+            }
+            myprice.setText("Total Price: $" + totalPrice);
+        }
 }

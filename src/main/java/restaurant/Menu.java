@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.event.ActionEvent;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -18,6 +21,8 @@ import javafx.stage.FileChooser;
 
 public class Menu implements Initializable {
 
+    float totalPrice;
+    
     @FXML
     TextField searchField;
 
@@ -36,6 +41,13 @@ public class Menu implements Initializable {
     @FXML
     ScrollPane cartContainer;
     static double cartPrefWidth;
+    
+    @FXML
+    private Label priceTotal;
+    public static Label mypriceTotal;
+
+    @FXML
+    private CheckBox couponCheck;
 
     @FXML
     private void switchToCheckOut() throws IOException {
@@ -47,6 +59,7 @@ public class Menu implements Initializable {
     // called when a .fxml file with this class as a controller is loaded
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
+        mypriceTotal = priceTotal;
         System.out.println("init menu");
         menu.setAlignment(Pos.CENTER);
         menu.setSpacing(30);
@@ -214,6 +227,21 @@ public class Menu implements Initializable {
         }
     }
 
+    public void coupon(ActionEvent c) throws IOException{
+        if(couponCheck.isSelected()) {
+            Menu.cartItems.add(new CartItem(Menu.cartPrefWidth, "coupon", -5f, 1));
+            updateTotalPrice();
+        }else{
+            for (var item : Menu.cartItems) {
+                CartItem cartItem = (CartItem) item;
+                if(cartItem.name == "coupon"){
+                    Menu.cartItems.remove(cartItem);
+                    updateTotalPrice();
+                }
+            }
+        }
+    }
+
     @FXML
     void goBack() {
         App.goBack();
@@ -224,5 +252,14 @@ public class Menu implements Initializable {
     void search() {
         String input = searchField.getText();
         System.out.println("Got: " + input);
+    }
+    
+    public static void updateTotalPrice(){
+        float totalPrice = 0;
+        for (var item : Menu.cartItems) {
+            CartItem cartItem = (CartItem) item;
+            totalPrice += cartItem.price * cartItem.quantity;
+        }
+        mypriceTotal.setText("Total Price: $" + totalPrice);
     }
 }
