@@ -70,7 +70,6 @@ public class Menu implements Initializable {
 
         App.cartItems.forEach(item -> {
             ((CartItem) item).build(cartContainer.getPrefWidth());
-            System.out.println(item);
         });
         cart.getChildren().setAll(App.cartItems);
         cartItems = cart.getChildren();
