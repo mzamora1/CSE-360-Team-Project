@@ -1,61 +1,61 @@
 package restaurant;
 
+import java.net.URL;
+import java.util.List;
 import java.util.Random;
-import java.io.IOException;
+import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import static restaurant.Menu.mypriceTotal;
+// import static restaurant.Menu.mypriceTotal;
 
-public class Checkout{
+public class Checkout implements Initializable {
 
 	// random numbers for ppl + expected waiting time
-	int max = 20;
-	int min = 1;
+	private static final int max = 20;
+	private static final int min = 1;
 
-	Random randomNum = new Random();
-	int num = min + randomNum.nextInt(max);
+	private static final Random randomNum = new Random();
 
 	@FXML
 	private Label price;
-        public static Label myprice;
-	
+
 	@FXML
 	private Label a;
 	@FXML
 	private Label b;
 
 	@FXML
-	TextField cardNumField;
+	private TextField cardNumField;
 	@FXML
-	TextField ccvField;
+	private TextField ccvField;
 	@FXML
-	TextField expirationField;
+	private TextField expirationField;
 	@FXML
-	TextField emailField;
+	private TextField emailField;
 
 	@FXML
 	private VBox cart;
-
 	@FXML
 	private ScrollPane cartContainer;
-	static double cartPrefWidth;
 
-	@FXML
-	public void initialize() {
-                myprice = price;
-		a.setText("People in line: " + num);
-		b.setText("Expected waiting time: " + (num * 5) + " minutes");
-                
-                updateTotalPrice();
-		
-		
+	@Override
+	public void initialize(URL arg0, ResourceBundle arg1) {
+		int peopleInLine = min + randomNum.nextInt(max);
+		a.setText("People in line: " + peopleInLine);
+		b.setText("Expected waiting time: " + (peopleInLine * 5) + " minutes");
+
+		updateTotalPrice(App.cartItems);
+
 		if (Customer.class.isInstance(App.user)) {
 			Customer user = (Customer) App.user;
 			cardNumField.setText(user.getCardNum());
@@ -64,38 +64,54 @@ public class Checkout{
 			emailField.setText(user.getEmail());
 		}
 		// someone will have to change the layout for the size to work right
-		cartPrefWidth = 170;// cart.getPrefWidth();
+		double cartPrefWidth = 170;// cartContainer.getPrefWidth();
 		System.out.println("cart width: " + cartPrefWidth);
-		Menu.cartItems.forEach(item -> ((CartItem) item).build(cartPrefWidth));
-		cart.getChildren().setAll(Menu.cartItems);
+
+		// App.cartItems.forEach(item -> ((CartItem) item).build(cartPrefWidth));
+		cart.getChildren().setAll(App.cartItems);
+		cart.getChildren().forEach(item -> ((CartItem) item).build(cartPrefWidth));
 	}
 
 	// clicking order button
-	public void order(ActionEvent a) throws IOException {
+	@FXML
+	private void order(ActionEvent a) {
 		// alarm window which switched back to menu after pressing confirmation
 		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Success");
-		alert.setHeaderText("Order successfully sent! Please press \"OK\" to be redirected back to the menu.");
-		alert.showAndWait();
+		alert.setTitle("Place Order?");
+		alert.setHeaderText(
+				"Press \"OK\" to REALLY place your order or close this window to cancel your order.");
+		alert.showAndWait()
+				.filter(response -> response == ButtonType.OK)
+				.ifPresent(response -> {
+					App.cartItems.clear();
+					switchToMenu();
+				});
 
-		switchToMenu();
 	}
 
 	// back button
-	public void back(ActionEvent c) throws IOException {
+	@FXML
+	private void back(ActionEvent c) {
 		App.goBack();
+		var menu = App.getController();
+		if (Menu.class == menu.getClass()) {
+			((Menu) menu).cartItems.setAll(App.cartItems);
+			((Menu) menu).menuItems.setAll(App.menuItems);
+		}
+
 	}
 
-	private void switchToMenu() throws IOException {
+	private void switchToMenu() {
 		App.setRoot("menu");
 	}
-        
-        public static void updateTotalPrice(){
-            float totalPrice = 0;
-            for (var item : Menu.cartItems) {
-                CartItem cartItem = (CartItem) item;
-                totalPrice += cartItem.price * cartItem.quantity;
-            }
-            myprice.setText("Total Price: $" + totalPrice);
-        }
+
+	private void updateTotalPrice(List<Node> cart) {
+		float totalPrice = 0;
+		for (var item : cart) {
+			CartItem cartItem = (CartItem) item;
+			totalPrice += cartItem.price() * cartItem.quantity();
+		}
+		price.setText("Total Price: $" + totalPrice);
+	}
+
 }

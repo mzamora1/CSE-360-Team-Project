@@ -1,27 +1,25 @@
 package restaurant;
 
-import java.io.IOException;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 
 public class CreateAccount {
     @FXML
-    TextField emailField;
+    private TextField emailField;
     @FXML
-    TextField passwordField;
+    private TextField passwordField;
     @FXML
-    TextField cardNumField;
+    private TextField cardNumField;
     @FXML
-    TextField ccvField;
+    private TextField ccvField;
     @FXML
-    TextField expirationField;
+    private TextField expirationField;
     @FXML
-    RadioButton adminOption;
+    private RadioButton adminOption;
 
     @FXML
-    void createAccount() throws IOException {
+    private void createAccount() {
         if (!emailField.getText().isEmpty() && !passwordField.getText().isEmpty() && !cardNumField.getText().isEmpty()
                 && !ccvField.getText().isEmpty()) {
             var newUser = new Customer(emailField.getText(), passwordField.getText(), adminOption.isSelected());

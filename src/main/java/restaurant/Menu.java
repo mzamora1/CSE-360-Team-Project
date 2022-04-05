@@ -1,9 +1,11 @@
 package restaurant;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javafx.event.ActionEvent;
 import javafx.collections.ObservableList;
@@ -18,75 +20,68 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 
 public class Menu implements Initializable {
 
-    float totalPrice;
-    
     @FXML
-    TextField searchField;
+    private TextField searchField;
 
     @FXML
-    VBox menu;
-    static ObservableList<Node> menuItems;
+    private VBox menu;
+    ObservableList<Node> menuItems;
 
     @FXML
-    VBox cart;
-    static ObservableList<Node> cartItems;
+    private VBox cart;
+    ObservableList<Node> cartItems;
 
     @FXML
     ScrollPane menuContainer;
-    static double menuPrefWidth;
 
     @FXML
     ScrollPane cartContainer;
-    static double cartPrefWidth;
-    
+
     @FXML
     private Label priceTotal;
-    public static Label mypriceTotal;
 
     @FXML
     private CheckBox couponCheck;
 
     @FXML
-    private void switchToCheckOut() throws IOException {
+    private void switchToCheckOut() {
+        if (cartItems.isEmpty())
+            return;
+        save();
         App.setRoot("checkout");
     }
 
-    private static File file;
+    private static File choosenFile;
 
     // called when a .fxml file with this class as a controller is loaded
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
-        mypriceTotal = priceTotal;
         System.out.println("init menu");
         menu.setAlignment(Pos.CENTER);
         menu.setSpacing(30);
         cart.setAlignment(Pos.TOP_CENTER);
         cart.setSpacing(5);
-        menuPrefWidth = menuContainer.getPrefWidth();
-        cartPrefWidth = cartContainer.getPrefWidth();
-        if (cartItems != null) {
-            System.out.println("using exisiting cart items " + cartItems.size());
-            cartItems.forEach(item -> {
-                ((CartItem) item).build(cartPrefWidth);
-                System.out.println(item);
-            });
-            cart.getChildren().setAll(cartItems);
-            cartItems = cart.getChildren();
-        } else {
-            cartItems = cart.getChildren();
-        }
+        // menuPrefWidth = menuContainer.getPrefWidth();
+        // cartPrefWidth = cartContainer.getPrefWidth();
 
-        if (menuItems != null) {
+        App.cartItems.forEach(item -> {
+            ((CartItem) item).build(cartContainer.getPrefWidth());
+            System.out.println(item);
+        });
+        cart.getChildren().setAll(App.cartItems);
+        cartItems = cart.getChildren();
+
+        if (!App.menuItems.isEmpty()) {
             // use already created menu
-            menu.getChildren().setAll(menuItems);
+            menu.getChildren().setAll(App.menuItems);
             menuItems = menu.getChildren();
         } else {
             // create a new menu
-            menuItems = menu.getChildren();
-            menuItems.setAll(
+            App.menuItems.addAll(List.of(
                     new MenuItem()
                             .setName("Spaghetti MeatBalls")
                             .setDescription(
@@ -150,13 +145,14 @@ public class Menu implements Initializable {
                             .setIngredients(new String[] {
                                     "Arugula", "Roasted red peppers", "Feta cheese", "Cucumber",
                                     "Red Onion" })
-                            .build()
-
-            );
+                            .build()));
+            menuItems = menu.getChildren();
+            menuItems.setAll(App.menuItems);
         }
 
         if (App.user.getAdmin()) {
             // add admin abilities to menu
+
             Button addMenuItemBtn = new Button("New Item");
             addMenuItemBtn.setUserData("newItemBtn");
 
@@ -176,16 +172,24 @@ public class Menu implements Initializable {
             Button createMenuItemBtn = new Button("Create Item");
 
             openFileChooserBtn.setOnMouseClicked(event -> {
-                file = new FileChooser().showOpenDialog(App.getStage());
+                var chooser = new FileChooser();
+                List<String> validExts = new ArrayList<>(List.of("*.bmp", "*.gif", "*.jpeg", "*.png"));
+                validExts.addAll(validExts.stream().map(String::toUpperCase)
+                        .collect(Collectors.toList()));
+
+                chooser.getExtensionFilters().add(
+                        new ExtensionFilter("Image files(bmp, gif, jpeg, png)", validExts));
+
+                choosenFile = chooser.showOpenDialog(App.getStage());
             });
 
             createMenuItemBtn.setOnMouseClicked(event -> {
-                if (file == null)
+                if (choosenFile == null)
                     return;
                 menuItems.remove(itemInput);
                 menuItems.add(new MenuItem().setName(nameInput.getText())
                         .setDescription(descriptInput.getText())
-                        .setImage(file.toURI())
+                        .setImage(choosenFile.toURI())
                         .setIngredients(ingredInput.getText())
                         .setPrice(Float.parseFloat(priceInput.getText()))
                         .build());
@@ -227,39 +231,76 @@ public class Menu implements Initializable {
         }
     }
 
-    public void coupon(ActionEvent c) throws IOException{
-        if(couponCheck.isSelected()) {
-            Menu.cartItems.add(new CartItem(Menu.cartPrefWidth, "coupon", -5f, 1));
-            updateTotalPrice();
-        }else{
-            for (var item : Menu.cartItems) {
+    @FXML
+    private void coupon(ActionEvent c) {
+        if (couponCheck.isSelected()) {
+            cartItems.add(new CartItem(cartContainer.getPrefWidth(), "coupon", -5f, 1));
+            updateTotalPrice(-5f);
+        } else {
+            for (var item : cartItems) {
                 CartItem cartItem = (CartItem) item;
-                if(cartItem.name == "coupon"){
-                    Menu.cartItems.remove(cartItem);
-                    updateTotalPrice();
+                if (cartItem.name() == "coupon") {
+                    cartItems.remove(cartItem);
+                    updateTotalPrice(-cartItem.price());
+                    return;
                 }
             }
         }
     }
 
+    public void save() {
+        if (!isFilteredMenu) {
+            App.menuItems.clear();
+            App.menuItems.addAll(menuItems);
+        }
+        App.cartItems.clear();
+        App.cartItems.addAll(cartItems);
+    }
+
     @FXML
-    void goBack() {
+    private void goBack() {
+        save();
         App.goBack();
     }
 
+    private boolean isFilteredMenu = false;
+
     // called when user presses enter in the search bar
     @FXML
-    void search() {
-        String input = searchField.getText();
+    private void search() {
+        String input = searchField.getText().trim().toLowerCase();
         System.out.println("Got: " + input);
-    }
-    
-    public static void updateTotalPrice(){
-        float totalPrice = 0;
-        for (var item : Menu.cartItems) {
-            CartItem cartItem = (CartItem) item;
-            totalPrice += cartItem.price * cartItem.quantity;
+        if (input.isEmpty() && isFilteredMenu) {
+            menuItems.setAll(App.menuItems);
+            isFilteredMenu = false;
+            return;
         }
-        mypriceTotal.setText("Total Price: $" + totalPrice);
+        if (!isFilteredMenu) {
+            // save menu items
+            App.menuItems.clear();
+            App.menuItems.addAll(menuItems);
+        }
+
+        menuItems.clear();
+        for (int i = 0; i < App.menuItems.size(); ++i) {
+            var item = (MenuItem) App.menuItems.get(i);
+            if (item.name.toLowerCase().contains(input)) {
+                menuItems.add(item);
+            }
+        }
+        isFilteredMenu = true;
+    }
+
+    public void updateTotalPrice(float changeAmount) {
+        totalPrice(totalPrice() + changeAmount);
+    }
+
+    public void totalPrice(float iprice) {
+        priceTotal.setText("Total Price: $" + iprice);
+    }
+
+    public float totalPrice() {
+        String totalText = priceTotal.getText();
+        return Float.parseFloat(totalText.substring(totalText.indexOf('$') + 1));
     }
 }
