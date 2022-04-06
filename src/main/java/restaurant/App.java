@@ -1,15 +1,18 @@
 package restaurant;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 
 /**
@@ -17,7 +20,7 @@ import java.util.Stack;
  */
 public class App extends Application {
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 
     private static Stage stage;
@@ -32,8 +35,17 @@ public class App extends Application {
     public void start(Stage istage) {
         stage = istage;
         scene = new Scene(loadFXML("login"), 640, 480);
+        // scene.rootProperty().addListener(
+        // (observable, old, newVal) ->
+        // App.getController(Loadable.class).ifPresent(Loadable::load));
+        stage.getIcons().add(new Image(App.class.getResourceAsStream("alfredologo.PNG")));
+        stage.setTitle("Alfredo Restaurant");
         stage.setScene(scene);
         stage.show();
+    }
+
+    public static void addWidthListener(ChangeListener<? super Number> listener) {
+        getStage().widthProperty().addListener(listener);
     }
 
     public static Stage getStage() {
@@ -49,6 +61,7 @@ public class App extends Application {
             return;
         fxmlLoaders.pop();
         scene.setRoot(getLoader().getRoot());
+        App.getController(Loadable.class).ifPresent(Loadable::load);
     }
 
     static FXMLLoader getLoader() {
@@ -57,6 +70,28 @@ public class App extends Application {
 
     public static Object getController() {
         return getLoader().getController();
+    }
+
+    public static <To, From> Optional<To> safeCast(From obj, Class<To> clazz) {
+        if (clazz.isInstance(obj))
+            return Optional.of(clazz.cast(obj));
+        return Optional.empty();
+    }
+
+    // not needed but makes it impossible to call the function wrong
+    public static <To, From> Optional<To> safeCast(Class<To> clazz, From obj) {
+        return safeCast(obj, clazz);
+    }
+
+    public static <Controller> Optional<Controller> getController(Class<Controller> clazz) {
+        return safeCast(getController(), clazz);
+    }
+
+    // unsafe because no checks are preformed before the cast
+    // only use when the type of getController() is known at compile time for sure
+    @SuppressWarnings("unchecked")
+    public static <Controller> Controller getControllerUnsafe() {
+        return (Controller) getController();
     }
 
     private static Parent loadFXML(String fxml) {

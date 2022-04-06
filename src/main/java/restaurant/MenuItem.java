@@ -1,9 +1,8 @@
 package restaurant;
 
-import java.net.URI;
+import java.io.File;
 import java.util.Arrays;
-
-import javafx.fxml.FXML;
+import java.util.stream.Collectors;
 
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -31,16 +30,16 @@ public class MenuItem extends VBox {
         }
     }
 
-    @FXML
-    private Label priceTotal;
-
-    String name;
-    String description;
-    Image image;
-    float price;
-    Type type;
-    String[] ingredients;
-    int prepareTime;
+    private final Label nameLabel = new Label();
+    private final Label descriptionLabel = new Label();
+    private Image image;
+    private final Label priceLabel = new Label("Price: $");
+    private final Label ingredientsLabel = new Label("Ingredients: ");
+    private final Button addToCartBtn = new Button("Add To Cart");
+    private final Button rmvFromCartBtn = new Button("Remove From Cart");
+    private final HBox buttonContainer = new HBox(10, addToCartBtn, rmvFromCartBtn);
+    private Type type;
+    private int prepareTime;
 
     public MenuItem() {
         super(10);
@@ -49,48 +48,43 @@ public class MenuItem extends VBox {
     public MenuItem(String iname, String descrip, String path, float iprice, Type itype,
             String[] ingred, int ptime) {
         super(10);
-        name = iname;
-        description = descrip;
-        image = new Image(path);
-        price = iprice;
-        type = itype;
-        ingredients = ingred;
-        prepareTime = ptime;
+        setName(iname);
+        setDescription(descrip);
+        setImage(path);
+        setPrice(iprice);
+        setType(itype);
+        setIngredients(ingred);
+        setPrepareTime(ptime);
         build();
     }
 
     public MenuItem build() {
-        // var menu = (Menu) App.getController();
         setAlignment(Pos.CENTER);
-        HBox buttonContainer = new HBox(10);
         buttonContainer.setAlignment(Pos.CENTER);
-        var buttons = buttonContainer.getChildren();
+        // setUserData(null);
 
-        Button addToCartBtn = new Button("Add To Cart");
         addToCartBtn.setOnMouseClicked(event -> {
             event.consume();
             // must be inside handler or else could be dangling
-            var menu = (Menu) App.getController();
+            Menu menu = App.getControllerUnsafe();
             for (var item : menu.cartItems) {
                 CartItem cartItem = (CartItem) item;
-                if (cartItem.name() == name) {
+                if (cartItem.name() == getName()) {
                     cartItem.updateQuantity(1);
                     menu.updateTotalPrice(cartItem.price());
                     return;
                 }
             }
-            menu.cartItems.add(new CartItem(menu.cartContainer.getPrefWidth(), name, price, 1));
-            menu.updateTotalPrice(price);
+            menu.cartItems.add(new CartItem(menu.cartContainer.getPrefWidth(), getName(), getPrice(), 1));
+            menu.updateTotalPrice(getPrice());
         });
-        buttons.add(addToCartBtn);
 
-        Button rmvFromCartBtn = new Button("Remove From Cart");
         rmvFromCartBtn.setOnMouseClicked(event -> {
             event.consume();
-            var menu = (Menu) App.getController();
+            Menu menu = App.getControllerUnsafe();
             for (var item : menu.cartItems) {
                 CartItem cartItem = (CartItem) item;
-                if (cartItem.name() != name)
+                if (cartItem.name() != getName())
                     continue;
 
                 if (cartItem.quantity() > 1) {
@@ -105,108 +99,119 @@ public class MenuItem extends VBox {
             }
 
         });
-        buttons.add(rmvFromCartBtn);
 
         if (App.user.getAdmin()) {
-            Button removeBtn = new Button("Remove From Menu");
-            removeBtn.setOnMouseClicked(event -> {
-                event.consume();
-                var menu = (Menu) App.getController();
-                menu.menuItems.remove(this);
-            });
-            buttons.add(removeBtn);
-            setUserData("isAdmin");
+            addAdminAbilities();
         }
-        var menu = (Menu) App.getController();
+        Menu menu = App.getControllerUnsafe();
         // var maxWidth = Menu.menuPrefWidth;
 
         var maxWidth = menu.menuContainer.getPrefWidth();
-        Label descriptionLabel = new Label(description);
         descriptionLabel.setWrapText(true);
         descriptionLabel.setMaxWidth(maxWidth * .75);
         descriptionLabel.setTextAlignment(TextAlignment.CENTER);
         descriptionLabel.setAlignment(Pos.CENTER);
 
-        String ingred = Arrays.toString(ingredients);
-        Label ingredLabel = new Label("Ingredients: " + ingred.substring(1, ingred.length() - 1));
-        ingredLabel.setWrapText(true);
-        ingredLabel.setMaxWidth(maxWidth * .75);
-        ingredLabel.setTextAlignment(TextAlignment.CENTER);
-        ingredLabel.setAlignment(Pos.CENTER);
+        ingredientsLabel.setWrapText(true);
+        ingredientsLabel.setMaxWidth(maxWidth * .75);
+        ingredientsLabel.setTextAlignment(TextAlignment.CENTER);
+        ingredientsLabel.setAlignment(Pos.CENTER);
 
         getChildren().setAll(
-                new Label(name),
+                nameLabel,
                 new Group(descriptionLabel),
                 new ImageView(image),
-                new Label("Price: $" + price),
-                new Group(ingredLabel),
+                priceLabel,
+                new Group(ingredientsLabel),
                 buttonContainer);
         return this;
-
     }
 
-    public boolean removeRemoveBtn() {
-        if (getUserData() != "isAdmin")
+    private static final int ADMIN_LENGTH = 3;
+
+    private boolean hasAdminAbilities() {
+        return buttonContainer.getChildren().size() == ADMIN_LENGTH;
+    }
+
+    private boolean addAdminAbilities() {
+        if (hasAdminAbilities())
             return false;
-        HBox buttonContainer = (HBox) getChildren().get(getChildren().size() - 1);
-        var buttons = buttonContainer.getChildren();
-        buttons.remove(buttons.get(buttons.size() - 1));
+        Button rmvFromMenuBtn = new Button("Remove From Menu");
+        rmvFromMenuBtn.setOnMouseClicked(event -> {
+            event.consume();
+            Menu menu = App.getControllerUnsafe();
+            menu.menuItems.remove(this);
+        });
+        buttonContainer.getChildren().add(rmvFromMenuBtn);
         return true;
     }
 
-    MenuItem setName(String val) {
-        name = val;
+    public boolean removeAdminAbilities() {
+        if (!hasAdminAbilities())
+            return false;
+        buttonContainer.getChildren().remove(ADMIN_LENGTH - 1);
+        return true;
+    }
+
+    public String getName() {
+        return nameLabel.getText();
+    }
+
+    private float getPrice() {
+        var text = priceLabel.getText();
+        return Float.parseFloat(text.substring(text.indexOf('$') + 1));
+    }
+
+    public MenuItem setName(String val) {
+        nameLabel.setText(val);
         return this;
     }
 
-    MenuItem setDescription(String val) {
-        description = val;
+    public MenuItem setDescription(String val) {
+        descriptionLabel.setText(val);
         return this;
     }
 
-    MenuItem setImage(Image img) {
+    public MenuItem setImage(Image img) {
         image = img;
         return this;
     }
 
-    MenuItem setImage(URI uri) {
+    public MenuItem setImage(File file) {
         var width = ((Menu) App.getController()).menuContainer.getPrefWidth();
-        image = new Image(uri.toString(), width,
+        image = new Image(file.toURI().toString(), width,
                 width, true, true);
         return this;
     }
 
-    MenuItem setImage(String path) {
+    public MenuItem setImage(String path) {
         var width = ((Menu) App.getController()).menuContainer.getPrefWidth();
-        image = new Image(App.class.getResource(path).toString(), width,
+        image = new Image(App.class.getResourceAsStream(path), width,
                 width, true, true);
         return this;
     }
 
-    MenuItem setPrice(float val) {
-        price = val;
+    public MenuItem setPrice(float val) {
+        priceLabel.setText("Price: $" + Float.toString(val));
         return this;
     }
 
-    MenuItem setType(Type val) {
+    public MenuItem setType(Type val) {
         type = val;
         return this;
     }
 
-    MenuItem setIngredients(String[] val) {
-        ingredients = val;
+    public MenuItem setIngredients(String[] val) {
+        ingredientsLabel.setText("Ingredients: " + Arrays.stream(val).collect(Collectors.joining(", ")));
         return this;
     }
 
-    MenuItem setIngredients(String val) {
-        ingredients = val.split(",");
-        for (int i = 0; i < ingredients.length; ++i) {
-            ingredients[i] = ingredients[i].trim();
-        }
+    public MenuItem setIngredients(String val) {
+        ingredientsLabel.setText(val);
         return this;
     }
 
-    MenuItem setPrepareTime(int val) {
+    public MenuItem setPrepareTime(int val) {
         prepareTime = val;
         return this;
     }

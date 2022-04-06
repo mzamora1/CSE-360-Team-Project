@@ -56,17 +56,16 @@ public class Checkout implements Initializable {
 
 		updateTotalPrice(App.cartItems);
 
-		if (Customer.class.isInstance(App.user)) {
-			Customer user = (Customer) App.user;
-			cardNumField.setText(user.getCardNum());
-			ccvField.setText(user.getCardCCV());
-			expirationField.setText(user.getCardExp());
-			emailField.setText(user.getEmail());
-		}
-		// someone will have to change the layout for the size to work right
-		double cartPrefWidth = 170;// cartContainer.getPrefWidth();
+		App.safeCast(Customer.class, App.user).ifPresent(cust -> {
+			cardNumField.setText(cust.getCardNum());
+			ccvField.setText(cust.getCardCCV());
+			expirationField.setText(cust.getCardExp());
+			emailField.setText(cust.getEmail());
+		});
 
-		// App.cartItems.forEach(item -> ((CartItem) item).build(cartPrefWidth));
+		// someone will have to change the layout for the size to work right
+		double cartPrefWidth = 150;// cartContainer.getPrefWidth();
+
 		cart.getChildren().setAll(App.cartItems);
 		cart.getChildren().forEach(item -> ((CartItem) item).build(cartPrefWidth));
 	}
@@ -92,12 +91,6 @@ public class Checkout implements Initializable {
 	@FXML
 	private void back(ActionEvent c) {
 		App.goBack();
-		var menu = App.getController();
-		if (Menu.class == menu.getClass()) {
-			((Menu) menu).cartItems.setAll(App.cartItems);
-			((Menu) menu).menuItems.setAll(App.menuItems);
-		}
-
 	}
 
 	private void switchToMenu() {

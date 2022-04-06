@@ -22,7 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
-public class Menu implements Initializable {
+public class Menu implements Initializable, Loadable<Menu> {
 
     @FXML
     private TextField searchField;
@@ -55,30 +55,20 @@ public class Menu implements Initializable {
         App.setRoot("checkout");
     }
 
-    private static File choosenFile;
-
-    // called when a .fxml file with this class as a controller is loaded
-    @Override
-    public void initialize(URL arg0, ResourceBundle arg1) {
-        System.out.println("init menu");
-        menu.setAlignment(Pos.CENTER);
-        menu.setSpacing(30);
+    private void loadCart() {
         cart.setAlignment(Pos.TOP_CENTER);
         cart.setSpacing(5);
-        // menuPrefWidth = menuContainer.getPrefWidth();
-        // cartPrefWidth = cartContainer.getPrefWidth();
-
         App.cartItems.forEach(item -> {
             ((CartItem) item).build(cartContainer.getPrefWidth());
         });
-        cart.getChildren().setAll(App.cartItems);
         cartItems = cart.getChildren();
+        cartItems.setAll(App.cartItems);
+    }
 
-        if (!App.menuItems.isEmpty()) {
-            // use already created menu
-            menu.getChildren().setAll(App.menuItems);
-            menuItems = menu.getChildren();
-        } else {
+    private void loadMenu() {
+        menu.setAlignment(Pos.CENTER);
+        menu.setSpacing(30);
+        if (App.menuItems.isEmpty()) {
             // create a new menu
             App.menuItems.addAll(List.of(
                     new MenuItem()
@@ -145,113 +135,147 @@ public class Menu implements Initializable {
                                     "Arugula", "Roasted red peppers", "Feta cheese", "Cucumber",
                                     "Red Onion" })
                             .build()));
-            menuItems = menu.getChildren();
-            menuItems.setAll(App.menuItems);
         }
+        // use already created menu
+        menuItems = menu.getChildren();
+        menuItems.setAll(App.menuItems);
+    }
 
-        if (App.user.getAdmin()) {
-            // add admin abilities to menu
+    public Menu load() {
+        loadCart();
+        loadMenu();
+        System.out.println("loading menu");
+        return this;
+    }
 
-            Button addMenuItemBtn = new Button("New Item");
-            addMenuItemBtn.setUserData("newItemBtn");
+    private static File choosenFile;
 
-            VBox itemInput = new VBox(5);
-            itemInput.setAlignment(Pos.CENTER);
-            itemInput.setUserData("itemInput");
+    private void addAdminAbilities() {
+        Button addMenuItemBtn = new Button("New Item");
+        addMenuItemBtn.setUserData("newItemBtn");
 
-            TextField nameInput = new TextField();
-            nameInput.setPromptText("name of item...");
-            Button openFileChooserBtn = new Button("Choose an image");
-            TextField descriptInput = new TextField();
-            descriptInput.setPromptText("description of item...");
-            TextField ingredInput = new TextField();
-            ingredInput.setPromptText("comma seperated ingredients...");
-            TextField priceInput = new TextField();
-            priceInput.setPromptText("price of item...");
-            Button createMenuItemBtn = new Button("Create Item");
+        VBox itemInput = new VBox(5);
+        itemInput.setAlignment(Pos.CENTER);
+        itemInput.setUserData("itemInput");
 
-            openFileChooserBtn.setOnMouseClicked(event -> {
-                var chooser = new FileChooser();
-                List<String> validExts = new ArrayList<>(List.of("*.bmp", "*.gif", "*.jpeg", "*.png"));
-                validExts.addAll(validExts.stream().map(String::toUpperCase)
-                        .collect(Collectors.toList()));
+        TextField nameInput = new TextField();
+        nameInput.setPromptText("name of item...");
+        Button openFileChooserBtn = new Button("Choose an image");
+        TextField descriptInput = new TextField();
+        descriptInput.setPromptText("description of item...");
+        TextField ingredInput = new TextField();
+        ingredInput.setPromptText("comma seperated ingredients...");
+        TextField priceInput = new TextField();
+        priceInput.setPromptText("price of item...");
+        Button createMenuItemBtn = new Button("Create Item");
 
-                chooser.getExtensionFilters().add(
-                        new ExtensionFilter("Image files(bmp, gif, jpeg, png)", validExts));
+        openFileChooserBtn.setOnMouseClicked(event -> {
+            var chooser = new FileChooser();
+            List<String> validExts = new ArrayList<>(List.of("*.bmp", "*.gif", "*.jpeg", "*.png"));
+            validExts.addAll(validExts.stream().map(String::toUpperCase)
+                    .collect(Collectors.toList()));
 
-                choosenFile = chooser.showOpenDialog(App.getStage());
-            });
+            chooser.getExtensionFilters().add(
+                    new ExtensionFilter("Image files(bmp, gif, jpeg, png)", validExts));
 
-            createMenuItemBtn.setOnMouseClicked(event -> {
-                if (choosenFile == null)
-                    return;
-                menuItems.remove(itemInput);
-                menuItems.add(new MenuItem().setName(nameInput.getText())
-                        .setDescription(descriptInput.getText())
-                        .setImage(choosenFile.toURI())
-                        .setIngredients(ingredInput.getText())
-                        .setPrice(Float.parseFloat(priceInput.getText()))
-                        .build());
-                menuItems.add(itemInput);
-            });
+            choosenFile = chooser.showOpenDialog(App.getStage());
+            System.out.println(choosenFile.getAbsolutePath());
+        });
 
-            addMenuItemBtn.setOnMouseClicked(event -> {
-                menuItems.remove(addMenuItemBtn);
-                itemInput.getChildren().addAll(
-                        nameInput,
-                        openFileChooserBtn,
-                        descriptInput,
-                        ingredInput,
-                        priceInput,
-                        createMenuItemBtn);
-                menuItems.add(itemInput);
-            });
+        createMenuItemBtn.setOnMouseClicked(event -> {
+            if (choosenFile == null)
+                return;
+            menuItems.remove(itemInput);
+            menuItems.add(new MenuItem().setName(nameInput.getText())
+                    .setDescription(descriptInput.getText())
+                    .setImage(choosenFile)
+                    .setIngredients(ingredInput.getText())
+                    .setPrice(Float.parseFloat(priceInput.getText()))
+                    .build());
+            menuItems.add(itemInput);
+        });
 
-            menuItems.forEach(item -> ((MenuItem) item).build());
-            menuItems.add(addMenuItemBtn);
-            // scroll to bottom when item is added to menu
-            menu.heightProperty().addListener((observable, old, newVal) -> {
-                if ((Double) newVal > (Double) old) {
-                    menuContainer.setVvalue((Double) old);
-                }
-            });
-        } else {
-            // remove admin abilities from menu
-            for (int i = 0; i < menuItems.size(); ++i) {
-                var item = menuItems.get(i);
-                if (MenuItem.class.isInstance(item))
-                    ((MenuItem) item).removeRemoveBtn();
-                else {
-                    menuItems.remove(item);
-                    --i;
-                }
+        addMenuItemBtn.setOnMouseClicked(event -> {
+            menuItems.remove(addMenuItemBtn);
+            itemInput.getChildren().addAll(
+                    nameInput,
+                    openFileChooserBtn,
+                    descriptInput,
+                    ingredInput,
+                    priceInput,
+                    createMenuItemBtn);
+            menuItems.add(itemInput);
+        });
 
+        // non menu items will reference garbage at this point so remove them
+        menuItems.removeIf(item -> App.safeCast(MenuItem.class, item).isEmpty());
+        menuItems.add(addMenuItemBtn);
+        // scroll to bottom when item is added to menu
+        menu.heightProperty().addListener((observable, old, newVal) -> {
+            if ((double) newVal > (double) old) {
+                menuContainer.setVvalue((double) old);
             }
+        });
+    }
+
+    private void removeAdminAbilities() {
+        menuItems.removeIf(raw -> {
+            var item = App.safeCast(MenuItem.class, raw);
+            if (item.isPresent()) {
+                item.get().removeAdminAbilities();
+                return false;
+            }
+            return true;
+        });
+    }
+
+    // called when a .fxml file with this class as a controller is loaded
+    @Override
+    public void initialize(URL arg0, ResourceBundle arg1) {
+        System.out.println("init menu");
+        load();
+        if (App.user.getAdmin()) {
+            addAdminAbilities();
+        } else {
+            removeAdminAbilities();
         }
     }
 
     @FXML
     private void coupon(ActionEvent c) {
-        if (couponCheck.isSelected()) {
-            cartItems.add(new CartItem(cartContainer.getPrefWidth(), "coupon", -5f, 1));
-            updateTotalPrice(-5f);
+        c.consume();
+        var coupon = new CartItem(cartContainer.getPrefWidth(), "coupon", -5f, 1);
+        if (couponCheck.isSelected() && totalPrice() > -coupon.price()) {
+            cartItems.add(coupon);
+            updateTotalPrice(coupon.price());
         } else {
-            for (var item : cartItems) {
+            couponCheck.setSelected(false);
+            cartItems.removeIf(item -> {
                 CartItem cartItem = (CartItem) item;
-                if (cartItem.name() == "coupon") {
-                    cartItems.remove(cartItem);
-                    updateTotalPrice(-cartItem.price());
-                    return;
+                if (cartItem.name() == coupon.name()) {
+                    updateTotalPrice(-coupon.price());
+                    return true;
                 }
-            }
+                return false;
+            });
         }
     }
 
     public void save() {
+        saveMenu();
+        saveCart();
+    }
+
+    private boolean saveMenu() {
         if (!isFilteredMenu) {
             App.menuItems.clear();
             App.menuItems.addAll(menuItems);
+            return true;
         }
+        return false;
+    }
+
+    private void saveCart() {
         App.cartItems.clear();
         App.cartItems.addAll(cartItems);
     }
@@ -274,16 +298,12 @@ public class Menu implements Initializable {
             isFilteredMenu = false;
             return;
         }
-        if (!isFilteredMenu) {
-            // save menu items
-            App.menuItems.clear();
-            App.menuItems.addAll(menuItems);
-        }
 
+        saveMenu();
         menuItems.clear();
         for (int i = 0; i < App.menuItems.size(); ++i) {
             var item = (MenuItem) App.menuItems.get(i);
-            if (item.name.toLowerCase().contains(input)) {
+            if (item.getName().toLowerCase().contains(input)) {
                 menuItems.add(item);
             }
         }
