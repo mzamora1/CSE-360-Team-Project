@@ -17,31 +17,35 @@ public class CartItem extends HBox {
         name(iname);
         price(iprice);
         quantity(iquant);
-        build(maxWidth);
+        build();
+        update(maxWidth);
     }
 
-    public CartItem build(double maxWidth) {
-        setMaxWidth(maxWidth);
+    public CartItem build() {
         setAlignment(Pos.TOP_CENTER);
-        setStyle("-fx-border-color: black");
+        // setStyle("-fx-border-color: black");
         nameLabel.setWrapText(true);
-        nameLabel.setMaxWidth(maxWidth * .50);
         nameLabel.setTextAlignment(TextAlignment.CENTER);
-        nameLabel.setStyle("-fx-border-color: blue");
+        // nameLabel.setStyle("-fx-border-color: blue");
         priceLabel.setWrapText(true);
-        priceLabel.setMaxWidth(maxWidth * .25);
         priceLabel.setTextAlignment(TextAlignment.CENTER);
-        priceLabel.setStyle("-fx-border-color: red");
+        // priceLabel.setStyle("-fx-border-color: red");
         HBox.setHgrow(priceLabel, Priority.ALWAYS);
         quantityLabel.setWrapText(true);
-        quantityLabel.setMaxWidth(maxWidth * .25);
         quantityLabel.setAlignment(Pos.TOP_CENTER);
         quantityLabel.setTextAlignment(TextAlignment.CENTER);
-        quantityLabel.setStyle("-fx-border-color: green");
+        // quantityLabel.setStyle("-fx-border-color: green");
         HBox.setHgrow(quantityLabel, Priority.ALWAYS);
         getChildren().setAll(
                 new Group(nameLabel), new Group(priceLabel), quantityLabel);
         return this;
+    }
+
+    public void update(double maxWidth) {
+        setMaxWidth(maxWidth);
+        nameLabel.setMaxWidth(maxWidth * .50);
+        priceLabel.setMaxWidth(maxWidth * .25);
+        quantityLabel.setMaxWidth(maxWidth * .25);
     }
 
     public String name() {

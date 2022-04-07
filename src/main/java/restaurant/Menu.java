@@ -18,11 +18,12 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
-public class Menu implements Initializable, Loadable<Menu> {
+public class Menu implements Initializable, Updatable {
 
     @FXML
     private TextField searchField;
@@ -55,19 +56,20 @@ public class Menu implements Initializable, Loadable<Menu> {
         App.setRoot("checkout");
     }
 
-    private void loadCart() {
+    private void buildCart() {
         cart.setAlignment(Pos.TOP_CENTER);
         cart.setSpacing(5);
-        App.cartItems.forEach(item -> {
-            ((CartItem) item).build(cartContainer.getPrefWidth());
-        });
-        cartItems = cart.getChildren();
-        cartItems.setAll(App.cartItems);
     }
 
-    private void loadMenu() {
-        menu.setAlignment(Pos.CENTER);
-        menu.setSpacing(30);
+    private void updateCart() {
+        cartItems = cart.getChildren();
+        cartItems.setAll(App.cartItems);
+        cartItems.forEach(item -> {
+            ((CartItem) item).update(cartContainer.getPrefWidth());
+        });
+    }
+
+    private void updateMenu() {
         if (App.menuItems.isEmpty()) {
             // create a new menu
             App.menuItems.addAll(List.of(
@@ -79,8 +81,7 @@ public class Menu implements Initializable, Loadable<Menu> {
                             .setPrice(12.75f)
                             .setIngredients(new String[] {
                                     "Spaghetti", "Marinara", "White breadcrumbs", "Lean ground beef",
-                                    "Black pepper", "Garlic", "Parmesan cheese", "Olive oil" })
-                            .build(),
+                                    "Black pepper", "Garlic", "Parmesan cheese", "Olive oil" }),
                     new MenuItem()
                             .setName("Fettuccine Alfredo")
                             .setDescription(
@@ -89,8 +90,7 @@ public class Menu implements Initializable, Loadable<Menu> {
                             .setPrice(10.50f)
                             .setIngredients(new String[] {
                                     "Fettuccine pasta", "Butter", "Garlic", "Black pepper",
-                                    "Parsley", "Parmesan" })
-                            .build(),
+                                    "Parsley", "Parmesan" }),
                     new MenuItem()
                             .setName("Pasta al'Ortolana")
                             .setDescription("Fusilli pasta served with a variety of vegetables.")
@@ -98,8 +98,7 @@ public class Menu implements Initializable, Loadable<Menu> {
                             .setPrice(11)
                             .setIngredients(new String[] {
                                     "Fusili pasta", "Carrots", "Onions", "Garlic", "Zucchini",
-                                    "Black pepper", "Olive oil", "Celery" })
-                            .build(),
+                                    "Black pepper", "Olive oil", "Celery" }),
                     new MenuItem()
                             .setName("Fried Mozzarella")
                             .setDescription("Hand cut and breaded fried mozzarella served with marinara dipping sauce.")
@@ -107,8 +106,7 @@ public class Menu implements Initializable, Loadable<Menu> {
                             .setPrice(8.5f)
                             .setIngredients(new String[] {
                                     "Mozzarella", "Flour", "Breadcrumbs", "Garlic",
-                                    "Oregano", "Black pepper", "Parsley", "Side of mariana" })
-                            .build(),
+                                    "Oregano", "Black pepper", "Parsley", "Side of mariana" }),
                     new MenuItem()
                             .setName("Balsamic Bruschetta (Trio)")
                             .setDescription("Fresh tomatoes and basil on a toasted baguette")
@@ -116,16 +114,14 @@ public class Menu implements Initializable, Loadable<Menu> {
                             .setPrice(9.5f)
                             .setIngredients(new String[] {
                                     "French bread", "Extra virgin olive oil", "Tomatoes", "Fresh basil",
-                                    "Parmesan", "Garlic", "Black pepper", "Balsamic vinegar" })
-                            .build(),
+                                    "Parmesan", "Garlic", "Black pepper", "Balsamic vinegar" }),
                     new MenuItem()
                             .setName("Ceasar Salad")
                             .setDescription("Romaine tossed with Caesar dressing and topped with croutons")
                             .setImage("ceasar.png")
                             .setPrice(7.75f)
                             .setIngredients(new String[] {
-                                    "Garlic Croutons", "Parmesan", "Ceasar dressing", "Romaine lettuce" })
-                            .build(),
+                                    "Garlic Croutons", "Parmesan", "Ceasar dressing", "Romaine lettuce" }),
                     new MenuItem()
                             .setName("Mediterranean Salad")
                             .setDescription("Assorted greens and veggies, topped with balsamic vinaigrette")
@@ -133,30 +129,82 @@ public class Menu implements Initializable, Loadable<Menu> {
                             .setPrice(8.75f)
                             .setIngredients(new String[] {
                                     "Arugula", "Roasted red peppers", "Feta cheese", "Cucumber",
-                                    "Red Onion" })
-                            .build()));
+                                    "Red Onion" })));
         }
         // use already created menu
         menuItems = menu.getChildren();
         menuItems.setAll(App.menuItems);
+        // non menu items could reference garbage at this point so remove them
+        // otherwise menuItems might need to be updated
+        menuItems.removeIf(item -> {
+            var menuItem = App.safeCast(MenuItem.class, item);
+            if (menuItem.isEmpty()) {
+                return true;
+            }
+            menuItem.get().update();
+            return false;
+        });
     }
 
-    public Menu load() {
-        loadCart();
-        loadMenu();
-        System.out.println("loading menu");
-        return this;
+    private void buildMenu() {
+        menu.setAlignment(Pos.CENTER);
+        menu.setSpacing(30);
+    }
+
+    // will be called during initialize
+    private void build() {
+        System.out.println("building menu");
+        buildCart();
+        buildMenu();
+    }
+
+    // also called during initialize but also after goBack
+    @Override
+    public void update() {
+        System.out.println("updating menu");
+        updateCart();
+        updateMenu();
+        if (App.user.getAdmin()) {
+            addAdminAbilities();
+        } else {
+            removeAdminAbilities();
+        }
     }
 
     private static File choosenFile;
 
     private void addAdminAbilities() {
         Button addMenuItemBtn = new Button("New Item");
-        addMenuItemBtn.setUserData("newItemBtn");
+        // addMenuItemBtn.setUserData("newItemBtn");
+        addMenuItemBtn.setOnMouseClicked(this::onStartNewMenuItem);
+        menuItems.add(addMenuItemBtn);
+        // scroll to bottom when item is added to menu
+        menu.heightProperty().addListener((observable, old, newVal) -> {
+            if ((double) newVal > (double) old) {
+                menuContainer.setVvalue((double) old);
+            }
+        });
+    }
+
+    private static void onOpenImageChooser(MouseEvent event) {
+        var chooser = new FileChooser();
+        List<String> validExts = new ArrayList<>(List.of("*.bmp", "*.gif", "*.jpeg", "*.png"));
+        validExts.addAll(validExts.stream().map(String::toUpperCase)
+                .collect(Collectors.toList()));
+
+        chooser.getExtensionFilters().add(
+                new ExtensionFilter("Image files(bmp, gif, jpeg, png)", validExts));
+
+        choosenFile = chooser.showOpenDialog(App.getStage());
+        System.out.println(choosenFile.getAbsolutePath());
+    }
+
+    private void onStartNewMenuItem(MouseEvent event) {
+        var addMenuItemBtn = event.getSource();
 
         VBox itemInput = new VBox(5);
         itemInput.setAlignment(Pos.CENTER);
-        itemInput.setUserData("itemInput");
+        // itemInput.setUserData("itemInput");
 
         TextField nameInput = new TextField();
         nameInput.setPromptText("name of item...");
@@ -168,21 +216,7 @@ public class Menu implements Initializable, Loadable<Menu> {
         TextField priceInput = new TextField();
         priceInput.setPromptText("price of item...");
         Button createMenuItemBtn = new Button("Create Item");
-
-        openFileChooserBtn.setOnMouseClicked(event -> {
-            var chooser = new FileChooser();
-            List<String> validExts = new ArrayList<>(List.of("*.bmp", "*.gif", "*.jpeg", "*.png"));
-            validExts.addAll(validExts.stream().map(String::toUpperCase)
-                    .collect(Collectors.toList()));
-
-            chooser.getExtensionFilters().add(
-                    new ExtensionFilter("Image files(bmp, gif, jpeg, png)", validExts));
-
-            choosenFile = chooser.showOpenDialog(App.getStage());
-            System.out.println(choosenFile.getAbsolutePath());
-        });
-
-        createMenuItemBtn.setOnMouseClicked(event -> {
+        createMenuItemBtn.setOnMouseClicked(e -> {
             if (choosenFile == null)
                 return;
             menuItems.remove(itemInput);
@@ -190,32 +224,21 @@ public class Menu implements Initializable, Loadable<Menu> {
                     .setDescription(descriptInput.getText())
                     .setImage(choosenFile)
                     .setIngredients(ingredInput.getText())
-                    .setPrice(Float.parseFloat(priceInput.getText()))
-                    .build());
+                    .setPrice(Float.parseFloat(priceInput.getText())));
             menuItems.add(itemInput);
         });
 
-        addMenuItemBtn.setOnMouseClicked(event -> {
-            menuItems.remove(addMenuItemBtn);
-            itemInput.getChildren().addAll(
-                    nameInput,
-                    openFileChooserBtn,
-                    descriptInput,
-                    ingredInput,
-                    priceInput,
-                    createMenuItemBtn);
-            menuItems.add(itemInput);
-        });
+        openFileChooserBtn.setOnMouseClicked(Menu::onOpenImageChooser);
 
-        // non menu items will reference garbage at this point so remove them
-        menuItems.removeIf(item -> App.safeCast(MenuItem.class, item).isEmpty());
-        menuItems.add(addMenuItemBtn);
-        // scroll to bottom when item is added to menu
-        menu.heightProperty().addListener((observable, old, newVal) -> {
-            if ((double) newVal > (double) old) {
-                menuContainer.setVvalue((double) old);
-            }
-        });
+        menuItems.remove(addMenuItemBtn);
+        itemInput.getChildren().addAll(
+                nameInput,
+                openFileChooserBtn,
+                descriptInput,
+                ingredInput,
+                priceInput,
+                createMenuItemBtn);
+        menuItems.add(itemInput);
     }
 
     private void removeAdminAbilities() {
@@ -232,13 +255,8 @@ public class Menu implements Initializable, Loadable<Menu> {
     // called when a .fxml file with this class as a controller is loaded
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
-        System.out.println("init menu");
-        load();
-        if (App.user.getAdmin()) {
-            addAdminAbilities();
-        } else {
-            removeAdminAbilities();
-        }
+        build();
+        update();
     }
 
     @FXML
@@ -261,7 +279,7 @@ public class Menu implements Initializable, Loadable<Menu> {
         }
     }
 
-    public void save() {
+    private void save() {
         saveMenu();
         saveCart();
     }
@@ -301,9 +319,9 @@ public class Menu implements Initializable, Loadable<Menu> {
 
         saveMenu();
         menuItems.clear();
-        for (int i = 0; i < App.menuItems.size(); ++i) {
-            var item = (MenuItem) App.menuItems.get(i);
-            if (item.getName().toLowerCase().contains(input)) {
+        for (var item : App.menuItems) {
+            var menuItem = (MenuItem) item;
+            if (menuItem.getName().toLowerCase().contains(input)) {
                 menuItems.add(item);
             }
         }

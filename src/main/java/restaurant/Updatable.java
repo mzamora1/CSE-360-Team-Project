@@ -1,8 +1,8 @@
 package restaurant;
 
 @FunctionalInterface
-public interface Loadable<T> {
+public interface Updatable {
     // will be called when 'this' is brought on screen by App
     // during goBack
-    public T load();
+    public void update();
 }

@@ -1,7 +1,6 @@
 package restaurant;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -35,17 +34,10 @@ public class App extends Application {
     public void start(Stage istage) {
         stage = istage;
         scene = new Scene(loadFXML("login"), 640, 480);
-        // scene.rootProperty().addListener(
-        // (observable, old, newVal) ->
-        // App.getController(Loadable.class).ifPresent(Loadable::load));
         stage.getIcons().add(new Image(App.class.getResourceAsStream("alfredologo.PNG")));
         stage.setTitle("Alfredo Restaurant");
         stage.setScene(scene);
         stage.show();
-    }
-
-    public static void addWidthListener(ChangeListener<? super Number> listener) {
-        getStage().widthProperty().addListener(listener);
     }
 
     public static Stage getStage() {
@@ -61,10 +53,10 @@ public class App extends Application {
             return;
         fxmlLoaders.pop();
         scene.setRoot(getLoader().getRoot());
-        App.getController(Loadable.class).ifPresent(Loadable::load);
+        App.getController(Updatable.class).ifPresent(Updatable::update);
     }
 
-    static FXMLLoader getLoader() {
+    private static FXMLLoader getLoader() {
         return fxmlLoaders.lastElement();
     }
 

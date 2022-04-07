@@ -67,7 +67,8 @@ public class Checkout implements Initializable {
 		double cartPrefWidth = 150;// cartContainer.getPrefWidth();
 
 		cart.getChildren().setAll(App.cartItems);
-		cart.getChildren().forEach(item -> ((CartItem) item).build(cartPrefWidth));
+		// only need to update items since they are already built
+		cart.getChildren().forEach(item -> ((CartItem) item).update(cartPrefWidth));
 	}
 
 	// clicking order button
