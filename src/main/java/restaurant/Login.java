@@ -40,7 +40,8 @@ public class Login {
     private void switchToMenu() {
         // if continue as guest is clicked, make a new user that is a guest with null
         // name and password.
-        App.user = new User("Guest User", "", false);
+        App.user = new GuestUser();
+        App.cartItems.clear();
         App.setRoot("menu");
     }
 

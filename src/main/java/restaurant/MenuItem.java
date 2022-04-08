@@ -4,13 +4,15 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -44,30 +46,25 @@ public class MenuItem extends VBox {
 
     public MenuItem() {
         super(10);
-        build();
-        update();
     }
 
-    public MenuItem(String iname, String descrip, String path, float iprice, Type itype,
-            String[] ingred, int ptime) {
+    // admin constructor
+    public MenuItem(EventHandler<ActionEvent> onAddToCart,
+            EventHandler<ActionEvent> onRemoveFromCart,
+            EventHandler<ActionEvent> onRemoveFromMenu,
+            double maxWidth) {
         super(10);
-        setName(iname);
-        setDescription(descrip);
-        setImage(path);
-        setPrice(iprice);
-        setType(itype);
-        setIngredients(ingred);
-        setPrepareTime(ptime);
         build();
-        update();
+        update(maxWidth);
+        addAdminAbilities();
+        setOnAddToCart(onAddToCart);
+        setOnRemoveFromCart(onRemoveFromCart);
+        setOnRemoveFromMenu(onRemoveFromMenu);
     }
 
-    private MenuItem build() {
+    public MenuItem build() {
         setAlignment(Pos.CENTER);
         buttonContainer.setAlignment(Pos.CENTER);
-
-        addToCartBtn.setOnMouseClicked(this::onAddToCart);
-        rmvFromCartBtn.setOnMouseClicked(this::onRemoveFromCart);
 
         descriptionLabel.setWrapText(true);
         descriptionLabel.setTextAlignment(TextAlignment.CENTER);
@@ -75,7 +72,7 @@ public class MenuItem extends VBox {
         ingredientsLabel.setWrapText(true);
         ingredientsLabel.setTextAlignment(TextAlignment.CENTER);
         ingredientsLabel.setAlignment(Pos.CENTER);
-
+        imageView.setPreserveRatio(true);
         getChildren().setAll(
                 nameLabel,
                 new Group(descriptionLabel),
@@ -87,16 +84,11 @@ public class MenuItem extends VBox {
         return this;
     }
 
-    public void update() {
-        Menu menu = App.getControllerUnsafe();
-        var maxWidth = menu.menuContainer.getPrefWidth();
-
+    public void update(double maxWidth) {
+        setMaxWidth(maxWidth);
         descriptionLabel.setMaxWidth(maxWidth * .75);
         ingredientsLabel.setMaxWidth(maxWidth * .75);
-        if (App.user.getAdmin()) {
-            addAdminAbilities();
-        } else
-            removeAdminAbilities();
+        imageView.setFitWidth(maxWidth - 50);
     }
 
     private static final int ADMIN_LENGTH = 3;
@@ -105,11 +97,10 @@ public class MenuItem extends VBox {
         return buttonContainer.getChildren().size() == ADMIN_LENGTH;
     }
 
-    private boolean addAdminAbilities() {
+    public boolean addAdminAbilities() {
         if (hasAdminAbilities())
             return false;
         Button rmvFromMenuBtn = new Button("Remove From Menu");
-        rmvFromMenuBtn.setOnMouseClicked(this::onRemoveFromMenu);
         buttonContainer.getChildren().add(rmvFromMenuBtn);
         return true;
     }
@@ -121,48 +112,39 @@ public class MenuItem extends VBox {
         return true;
     }
 
-    private void onAddToCart(MouseEvent event) {
-        event.consume();
-        Menu menu = App.getControllerUnsafe();
-        for (var item : menu.cartItems) {
-            CartItem cartItem = (CartItem) item;
-            if (cartItem.name().equals(getName())) {
-                cartItem.updateQuantity(1);
-                menu.updateTotalPrice(cartItem.price());
-                return;
-            }
+    @SuppressWarnings("unchecked")
+    private <T extends Event> EventHandler<T> handler(EventHandler<T> onAction) {
+        return event -> {
+            // 'this' as source, event.target as target
+            var thisEvent = ((T) event.copyFor(this, event.getTarget()));
+            onAction.handle(thisEvent);
+            if (thisEvent.isConsumed())
+                event.consume();
+        };
+    }
+
+    public void setOnAddToCart(EventHandler<ActionEvent> val) {
+        addToCartBtn.setOnAction(handler(val));
+    }
+
+    public void setOnRemoveFromCart(EventHandler<ActionEvent> val) {
+        rmvFromCartBtn.setOnAction(handler(val));
+    }
+
+    public void setOnRemoveFromMenu(EventHandler<ActionEvent> val) {
+        if (hasAdminAbilities()) {
+            ((Button) buttonContainer.getChildren().get(ADMIN_LENGTH - 1))
+                    .setOnAction(handler(val));
+            return;
         }
-        menu.cartItems.add(new CartItem(menu.cartContainer.getPrefWidth(), getName(), getPrice(), 1));
-        menu.updateTotalPrice(getPrice());
-    }
-
-    private void onRemoveFromCart(MouseEvent event) {
-        event.consume();
-        Menu menu = App.getControllerUnsafe();
-        menu.cartItems.removeIf(item -> {
-            CartItem cartItem = (CartItem) item;
-            if (!cartItem.name().equals(getName()))
-                return false;
-            menu.updateTotalPrice(-cartItem.price());
-            if (cartItem.quantity() > 1) {
-                cartItem.updateQuantity(-1);
-                return false;
-            }
-            return true;
-        });
-    }
-
-    private void onRemoveFromMenu(MouseEvent event) {
-        event.consume();
-        Menu menu = App.getControllerUnsafe();
-        menu.menuItems.remove(this);
+        throw new RuntimeException("cannot set RemoveFromMenu handler without admin abilities");
     }
 
     public String getName() {
         return nameLabel.getText();
     }
 
-    private float getPrice() {
+    public float getPrice() {
         var text = priceLabel.getText();
         return Float.parseFloat(text.substring(text.indexOf('$') + 1));
     }
@@ -183,13 +165,13 @@ public class MenuItem extends VBox {
     }
 
     public MenuItem setImage(File file) {
-        var width = ((Menu) App.getController()).menuContainer.getPrefWidth();
+        var width = getMaxWidth() - 50;
         return setImage(new Image(file.toURI().toString(), width,
                 width, true, true));
     }
 
     public MenuItem setImage(String path) {
-        var width = ((Menu) App.getController()).menuContainer.getPrefWidth();
+        var width = getMaxWidth() - 50;
         return setImage(new Image(App.class.getResourceAsStream(path), width,
                 width, true, true));
     }

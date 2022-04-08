@@ -60,10 +60,6 @@ public class App extends Application {
         return fxmlLoaders.lastElement();
     }
 
-    public static Object getController() {
-        return getLoader().getController();
-    }
-
     public static <To, From> Optional<To> safeCast(From obj, Class<To> clazz) {
         if (clazz.isInstance(obj))
             return Optional.of(clazz.cast(obj));
@@ -75,15 +71,17 @@ public class App extends Application {
         return safeCast(obj, clazz);
     }
 
+    public static Object getController() {
+        return getLoader().getController();
+    }
+
     public static <Controller> Optional<Controller> getController(Class<Controller> clazz) {
         return safeCast(getController(), clazz);
     }
 
-    // unsafe because no checks are preformed before the cast
-    // only use when the type of getController() is known at compile time for sure
-    @SuppressWarnings("unchecked")
-    public static <Controller> Controller getControllerUnsafe() {
-        return (Controller) getController();
+    // unsafe because no checks are done before the cast
+    public static <Controller> Controller getControllerUnsafe(Class<Controller> clazz) {
+        return clazz.cast(getController());
     }
 
     private static Parent loadFXML(String fxml) {

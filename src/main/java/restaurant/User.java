@@ -32,8 +32,15 @@ public class User {
 		return pass;
 	}
 
-	public boolean getAdmin() {
+	public boolean isAdmin() {
 		return admin;
 	}
 
+	public boolean isGuest() {
+		return this instanceof GuestUser;
+	}
+
+	public boolean isCustomer() {
+		return this instanceof Customer;
+	}
 }

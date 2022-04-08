@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -18,7 +19,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -30,17 +30,17 @@ public class Menu implements Initializable, Updatable {
 
     @FXML
     private VBox menu;
-    ObservableList<Node> menuItems;
+    private ObservableList<Node> menuItems;
 
     @FXML
     private VBox cart;
-    ObservableList<Node> cartItems;
+    private ObservableList<Node> cartItems;
 
     @FXML
-    ScrollPane menuContainer;
+    private ScrollPane menuContainer;
 
     @FXML
-    ScrollPane cartContainer;
+    private ScrollPane cartContainer;
 
     @FXML
     private Label priceTotal;
@@ -59,17 +59,19 @@ public class Menu implements Initializable, Updatable {
     private void buildCart() {
         cart.setAlignment(Pos.TOP_CENTER);
         cart.setSpacing(5);
+        cartItems = cart.getChildren();
     }
 
     private void updateCart() {
-        cartItems = cart.getChildren();
         cartItems.setAll(App.cartItems);
         cartItems.forEach(item -> {
             ((CartItem) item).update(cartContainer.getPrefWidth());
         });
     }
 
-    private void updateMenu() {
+    private void buildMenu() {
+        menu.setAlignment(Pos.CENTER);
+        menu.setSpacing(30);
         if (App.menuItems.isEmpty()) {
             // create a new menu
             App.menuItems.addAll(List.of(
@@ -134,21 +136,65 @@ public class Menu implements Initializable, Updatable {
         // use already created menu
         menuItems = menu.getChildren();
         menuItems.setAll(App.menuItems);
+        for (var item : menuItems) {
+            App.safeCast(MenuItem.class, item).ifPresent(MenuItem::build);
+        }
+    }
+
+    private void updateMenu() {
+        menuItems.setAll(App.menuItems);
         // non menu items could reference garbage at this point so remove them
         // otherwise menuItems might need to be updated
+        // menuItem handlers could also reference garbage so we have to reassign them
+        // basically anything referencing 'this' could be referencing garbage here
         menuItems.removeIf(item -> {
-            var menuItem = App.safeCast(MenuItem.class, item);
-            if (menuItem.isEmpty()) {
+            var optMenuItem = App.safeCast(MenuItem.class, item);
+            if (optMenuItem.isEmpty()) {
                 return true;
             }
-            menuItem.get().update();
+            var menuItem = optMenuItem.get();
+            menuItem.setOnAddToCart(this::onAddToCart);
+            menuItem.setOnRemoveFromCart(this::onRemoveFromCart);
+            menuItem.update(menuContainer.getPrefWidth());
             return false;
         });
     }
 
-    private void buildMenu() {
-        menu.setAlignment(Pos.CENTER);
-        menu.setSpacing(30);
+    private <T extends Event> void onAddToCart(T event) {
+        event.consume();
+        var menuItem = (MenuItem) event.getSource();
+        for (var item : cartItems) {
+            CartItem cartItem = (CartItem) item;
+            if (cartItem.name().equals(menuItem.getName())) {
+                cartItem.updateQuantity(1);
+                changeTotalPriceBy(cartItem.price());
+                return;
+            }
+        }
+        cartItems.add(new CartItem(cartContainer.getPrefWidth(),
+                menuItem.getName(), menuItem.getPrice(), 1));
+        changeTotalPriceBy(menuItem.getPrice());
+    }
+
+    private <T extends Event> void onRemoveFromCart(T event) {
+        event.consume();
+        var menuItem = (MenuItem) event.getSource();
+        cartItems.removeIf(item -> {
+            CartItem cartItem = (CartItem) item;
+            if (!cartItem.name().equals(menuItem.getName()))
+                return false;
+            changeTotalPriceBy(-cartItem.price());
+            if (cartItem.quantity() > 1) {
+                cartItem.updateQuantity(-1);
+                return false;
+            }
+            return true;
+        });
+    }
+
+    private <T extends Event> void onRemoveFromMenu(T event) {
+        event.consume();
+        menuItems.remove((MenuItem) event.getSource());
     }
 
     // will be called during initialize
@@ -156,26 +202,40 @@ public class Menu implements Initializable, Updatable {
         System.out.println("building menu");
         buildCart();
         buildMenu();
+
     }
 
     // also called during initialize but also after goBack
+    // must update anything that could be referencing a previous 'this' value
+    // or risk reading from dangling memory
     @Override
     public void update() {
         System.out.println("updating menu");
         updateCart();
         updateMenu();
-        if (App.user.getAdmin()) {
+        if (App.user.isAdmin()) {
             addAdminAbilities();
         } else {
             removeAdminAbilities();
         }
     }
 
-    private static File choosenFile;
+    private boolean hasAdminAbilities() {
+        return App.safeCast(MenuItem.class, menuItems.get(menuItems.size() - 1)).isEmpty();
+    }
 
-    private void addAdminAbilities() {
+    private boolean addAdminAbilities() {
+        if (hasAdminAbilities())
+            return false;
+
+        for (var item : menuItems) {
+            App.safeCast(MenuItem.class, item)
+                    .ifPresent(menuItem -> {
+                        menuItem.addAdminAbilities();
+                        menuItem.setOnRemoveFromMenu(this::onRemoveFromMenu);
+                    });
+        }
         Button addMenuItemBtn = new Button("New Item");
-        // addMenuItemBtn.setUserData("newItemBtn");
         addMenuItemBtn.setOnMouseClicked(this::onStartNewMenuItem);
         menuItems.add(addMenuItemBtn);
         // scroll to bottom when item is added to menu
@@ -184,9 +244,12 @@ public class Menu implements Initializable, Updatable {
                 menuContainer.setVvalue((double) old);
             }
         });
+        return true;
     }
 
-    private static void onOpenImageChooser(MouseEvent event) {
+    private static File choosenFile;
+
+    private static <T extends Event> void onOpenImageChooser(T event) {
         var chooser = new FileChooser();
         List<String> validExts = new ArrayList<>(List.of("*.bmp", "*.gif", "*.jpeg", "*.png"));
         validExts.addAll(validExts.stream().map(String::toUpperCase)
@@ -196,48 +259,27 @@ public class Menu implements Initializable, Updatable {
                 new ExtensionFilter("Image files(bmp, gif, jpeg, png)", validExts));
 
         choosenFile = chooser.showOpenDialog(App.getStage());
-        System.out.println(choosenFile.getAbsolutePath());
     }
 
-    private void onStartNewMenuItem(MouseEvent event) {
+    private <T extends Event> void onStartNewMenuItem(T event) {
         var addMenuItemBtn = event.getSource();
-
-        VBox itemInput = new VBox(5);
-        itemInput.setAlignment(Pos.CENTER);
-        // itemInput.setUserData("itemInput");
-
-        TextField nameInput = new TextField();
-        nameInput.setPromptText("name of item...");
-        Button openFileChooserBtn = new Button("Choose an image");
-        TextField descriptInput = new TextField();
-        descriptInput.setPromptText("description of item...");
-        TextField ingredInput = new TextField();
-        ingredInput.setPromptText("comma seperated ingredients...");
-        TextField priceInput = new TextField();
-        priceInput.setPromptText("price of item...");
-        Button createMenuItemBtn = new Button("Create Item");
-        createMenuItemBtn.setOnMouseClicked(e -> {
+        var itemInput = new MenuItemInput();
+        itemInput.setOnOpenImageChooser(Menu::onOpenImageChooser);
+        itemInput.setOnCreateMenuItem(e -> {
             if (choosenFile == null)
                 return;
             menuItems.remove(itemInput);
-            menuItems.add(new MenuItem().setName(nameInput.getText())
-                    .setDescription(descriptInput.getText())
+            var newItem = new MenuItem(this::onAddToCart,
+                    this::onRemoveFromCart, this::onRemoveFromMenu, menuContainer.getPrefWidth())
+                    .setName(itemInput.getName())
+                    .setDescription(itemInput.getDescription())
                     .setImage(choosenFile)
-                    .setIngredients(ingredInput.getText())
-                    .setPrice(Float.parseFloat(priceInput.getText())));
+                    .setIngredients(itemInput.getIngredients())
+                    .setPrice(itemInput.getPrice());
+            menuItems.add(newItem);
             menuItems.add(itemInput);
         });
-
-        openFileChooserBtn.setOnMouseClicked(Menu::onOpenImageChooser);
-
         menuItems.remove(addMenuItemBtn);
-        itemInput.getChildren().addAll(
-                nameInput,
-                openFileChooserBtn,
-                descriptInput,
-                ingredInput,
-                priceInput,
-                createMenuItemBtn);
         menuItems.add(itemInput);
     }
 
@@ -262,16 +304,17 @@ public class Menu implements Initializable, Updatable {
     @FXML
     private void coupon(ActionEvent c) {
         c.consume();
-        var coupon = new CartItem(cartContainer.getPrefWidth(), "coupon", -5f, 1);
-        if (couponCheck.isSelected() && totalPrice() > -coupon.price()) {
+        float couponPrice = -5f;
+        var coupon = new CartItem(cartContainer.getPrefWidth(), "coupon", couponPrice, 1);
+        if (couponCheck.isSelected() && totalPrice() > -couponPrice) {
             cartItems.add(coupon);
-            updateTotalPrice(coupon.price());
+            changeTotalPriceBy(couponPrice);
         } else {
             couponCheck.setSelected(false);
             cartItems.removeIf(item -> {
                 CartItem cartItem = (CartItem) item;
                 if (cartItem.name() == coupon.name()) {
-                    updateTotalPrice(-coupon.price());
+                    changeTotalPriceBy(-couponPrice);
                     return true;
                 }
                 return false;
@@ -293,9 +336,12 @@ public class Menu implements Initializable, Updatable {
         return false;
     }
 
-    private void saveCart() {
+    private boolean saveCart() {
+        if (App.user.isGuest())
+            return false;
         App.cartItems.clear();
         App.cartItems.addAll(cartItems);
+        return true;
     }
 
     @FXML
@@ -328,15 +374,15 @@ public class Menu implements Initializable, Updatable {
         isFilteredMenu = true;
     }
 
-    public void updateTotalPrice(float changeAmount) {
+    private void changeTotalPriceBy(float changeAmount) {
         totalPrice(totalPrice() + changeAmount);
     }
 
-    public void totalPrice(float iprice) {
+    private void totalPrice(float iprice) {
         priceTotal.setText("Total Price: $" + iprice);
     }
 
-    public float totalPrice() {
+    private float totalPrice() {
         String totalText = priceTotal.getText();
         return Float.parseFloat(totalText.substring(totalText.indexOf('$') + 1));
     }
