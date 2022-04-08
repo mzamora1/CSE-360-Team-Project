@@ -5,6 +5,9 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 
 public class CreateAccount {
+    public CreateAccount() {
+    }
+
     @FXML
     private TextField emailField;
     @FXML

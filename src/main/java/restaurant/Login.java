@@ -5,6 +5,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 
 public class Login {
+    public Login() {
+    }
 
     @FXML
     private TextField usernameField;

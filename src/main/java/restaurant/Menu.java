@@ -24,6 +24,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class Menu implements Initializable, Updatable {
+    public Menu() {
+    }
 
     @FXML
     private TextField searchField;

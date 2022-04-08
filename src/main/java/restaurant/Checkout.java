@@ -19,6 +19,8 @@ import javafx.scene.control.TextField;
 // import static restaurant.Menu.mypriceTotal;
 
 public class Checkout implements Initializable {
+	public Checkout() {
+	}
 
 	// random numbers for ppl + expected waiting time
 	private static final int max = 20;
