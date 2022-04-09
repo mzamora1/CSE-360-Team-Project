@@ -1,6 +1,7 @@
 package restaurant;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -41,6 +42,8 @@ public class App extends Application {
         scene = new Scene(loadFXML("login"), 640, 480);
         stage.getIcons().add(new Image(App.class.getResourceAsStream("alfredologo.PNG")));
         stage.setTitle("Alfredo Restaurant");
+        // this listener allows the app to be responsive
+        stage.widthProperty().addListener(onReisze);
         stage.setScene(scene);
         stage.show();
     }
@@ -49,8 +52,21 @@ public class App extends Application {
         return stage;
     }
 
+    private static Parent controller;
+    private static ChangeListener<Number> onReisze = (obs, old, newVal) -> {
+        if (controller != null)
+            // eventually this will have to become an interface
+            ((MenuController) controller).update(scene.getWidth(), scene.getHeight());
+    };
+
     public static void setRoot(String fxml) {
-        scene.setRoot(loadFXML(fxml));
+        if (fxml == "menu") {
+            controller = new MenuController(scene.getWidth(), scene.getHeight());
+            scene.setRoot(controller);
+        }
+
+        else
+            scene.setRoot(loadFXML(fxml));
     }
 
     public static void goBack() {
@@ -76,7 +92,7 @@ public class App extends Application {
         return safeCast(obj, clazz);
     }
 
-    public static Object getController() {
+    private static Object getController() {
         return getLoader().getController();
     }
 

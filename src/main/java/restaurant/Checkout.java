@@ -104,7 +104,7 @@ public class Checkout implements Initializable {
 		float totalPrice = 0;
 		for (var item : cart) {
 			CartItem cartItem = (CartItem) item;
-			totalPrice += cartItem.price() * cartItem.quantity();
+			totalPrice += cartItem.getPrice() * cartItem.getQuantity();
 		}
 		price.setText("Total Price: $" + totalPrice);
 	}

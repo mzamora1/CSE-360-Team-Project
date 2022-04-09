@@ -23,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
+@Deprecated(since = "MenuController became resizeable")
 public class Menu implements Initializable, Updatable {
     public Menu() {
     }
@@ -167,9 +168,9 @@ public class Menu implements Initializable, Updatable {
         var menuItem = (MenuItem) event.getSource();
         for (var item : cartItems) {
             CartItem cartItem = (CartItem) item;
-            if (cartItem.name().equals(menuItem.getName())) {
-                cartItem.updateQuantity(1);
-                changeTotalPriceBy(cartItem.price());
+            if (cartItem.getName().equals(menuItem.getName())) {
+                cartItem.changeQuantityBy(1);
+                changeTotalPriceBy(cartItem.getPrice());
                 return;
             }
         }
@@ -183,11 +184,11 @@ public class Menu implements Initializable, Updatable {
         var menuItem = (MenuItem) event.getSource();
         cartItems.removeIf(item -> {
             CartItem cartItem = (CartItem) item;
-            if (!cartItem.name().equals(menuItem.getName()))
+            if (!cartItem.getName().equals(menuItem.getName()))
                 return false;
-            changeTotalPriceBy(-cartItem.price());
-            if (cartItem.quantity() > 1) {
-                cartItem.updateQuantity(-1);
+            changeTotalPriceBy(-cartItem.getPrice());
+            if (cartItem.getQuantity() > 1) {
+                cartItem.changeQuantityBy(-1);
                 return false;
             }
             return true;
@@ -315,7 +316,7 @@ public class Menu implements Initializable, Updatable {
             couponCheck.setSelected(false);
             cartItems.removeIf(item -> {
                 CartItem cartItem = (CartItem) item;
-                if (cartItem.name() == coupon.name()) {
+                if (cartItem.getName() == coupon.getName()) {
                     changeTotalPriceBy(-couponPrice);
                     return true;
                 }

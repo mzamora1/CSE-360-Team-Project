@@ -2,11 +2,14 @@ package restaurant;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventDispatchChain;
 import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
@@ -17,7 +20,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
-public class MenuItem extends VBox {
+// MenuItem is a simple wrapper around a VBox that contains all the information of a MenuItem
+// it does not know about any other views or controllers
+public class MenuItem extends VBox implements Item {
 
     public enum Type {
         Entree("Entree"), Side("Side"), Drink("Drink");
@@ -84,11 +89,14 @@ public class MenuItem extends VBox {
         return this;
     }
 
+    private double menuItemWidth(double maxWidth) {
+        return maxWidth * .75;
+    }
+
     public void update(double maxWidth) {
-        setMaxWidth(maxWidth);
-        descriptionLabel.setMaxWidth(maxWidth * .75);
-        ingredientsLabel.setMaxWidth(maxWidth * .75);
-        imageView.setFitWidth(maxWidth - 50);
+        descriptionLabel.setMaxWidth(menuItemWidth(maxWidth));
+        ingredientsLabel.setMaxWidth(menuItemWidth(maxWidth));
+        imageView.setFitWidth(menuItemWidth(maxWidth));
     }
 
     private static final int ADMIN_LENGTH = 3;
@@ -97,6 +105,7 @@ public class MenuItem extends VBox {
         return buttonContainer.getChildren().size() == ADMIN_LENGTH;
     }
 
+    // responsible for adding elements to the screen that only admins can use
     public boolean addAdminAbilities() {
         if (hasAdminAbilities())
             return false;
@@ -123,19 +132,21 @@ public class MenuItem extends VBox {
         };
     }
 
-    public void setOnAddToCart(EventHandler<ActionEvent> val) {
+    public MenuItem setOnAddToCart(EventHandler<ActionEvent> val) {
         addToCartBtn.setOnAction(handler(val));
+        return this;
     }
 
-    public void setOnRemoveFromCart(EventHandler<ActionEvent> val) {
+    public MenuItem setOnRemoveFromCart(EventHandler<ActionEvent> val) {
         rmvFromCartBtn.setOnAction(handler(val));
+        return this;
     }
 
-    public void setOnRemoveFromMenu(EventHandler<ActionEvent> val) {
+    public MenuItem setOnRemoveFromMenu(EventHandler<ActionEvent> val) {
         if (hasAdminAbilities()) {
             ((Button) buttonContainer.getChildren().get(ADMIN_LENGTH - 1))
                     .setOnAction(handler(val));
-            return;
+            return this;
         }
         throw new RuntimeException("cannot set RemoveFromMenu handler without admin abilities");
     }
@@ -165,13 +176,13 @@ public class MenuItem extends VBox {
     }
 
     public MenuItem setImage(File file) {
-        var width = getMaxWidth() - 50;
+        var width = imageView.getFitWidth();
         return setImage(new Image(file.toURI().toString(), width,
                 width, true, true));
     }
 
     public MenuItem setImage(String path) {
-        var width = getMaxWidth() - 50;
+        var width = imageView.getFitWidth();
         return setImage(new Image(App.class.getResourceAsStream(path), width,
                 width, true, true));
     }

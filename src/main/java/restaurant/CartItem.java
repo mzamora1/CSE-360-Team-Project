@@ -7,16 +7,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.TextAlignment;
 
-public class CartItem extends HBox {
+public class CartItem extends HBox implements Item {
     private final Label nameLabel = new Label();
     private final Label priceLabel = new Label();
     private final Label quantityLabel = new Label();
 
     public CartItem(double maxWidth, String iname, float iprice, int iquant) {
         super(5);
-        name(iname);
-        price(iprice);
-        quantity(iquant);
+        setName(iname);
+        setPrice(iprice);
+        setQuantity(iquant);
         build();
         update(maxWidth);
     }
@@ -48,32 +48,34 @@ public class CartItem extends HBox {
         quantityLabel.setMaxWidth(maxWidth * .25);
     }
 
-    public String name() {
+    public String getName() {
         return nameLabel.getText();
     }
 
-    public void name(String iname) {
+    public CartItem setName(String iname) {
         nameLabel.setText(iname);
+        return this;
     }
 
-    public float price() {
+    public float getPrice() {
         return Float.parseFloat(priceLabel.getText());
     }
 
-    public void price(float iprice) {
+    public CartItem setPrice(float iprice) {
         priceLabel.setText(Float.toString(iprice));
+        return this;
     }
 
-    public int quantity() {
+    public int getQuantity() {
         return Integer.parseInt(quantityLabel.getText());
     }
 
-    public void quantity(int iquantity) {
+    public void setQuantity(int iquantity) {
         quantityLabel.setText(Integer.toString(iquantity));
     }
 
-    public void updateQuantity(int changeAmount) {
-        quantity(quantity() + changeAmount);
+    public void changeQuantityBy(int changeAmount) {
+        setQuantity(getQuantity() + changeAmount);
     }
 
 }
