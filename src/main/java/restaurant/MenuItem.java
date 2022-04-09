@@ -121,6 +121,7 @@ public class MenuItem extends VBox implements Item {
     @SuppressWarnings("unchecked")
     private <T extends Event> EventHandler<T> handler(EventHandler<T> onAction) {
         return event -> {
+            // TODO be able to fire custom event types
             // 'this' as source, event.target as target
             var thisEvent = ((T) event.copyFor(this, event.getTarget()));
             onAction.handle(thisEvent);

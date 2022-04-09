@@ -14,8 +14,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
-public class MenuController extends BorderPane {
-    private final BetterMenu menu = new BetterMenu();
+public class MenuController extends BorderPane implements Updatable {
+    private final Menu menu = new Menu();
     private final Cart cart = new Cart();
 
     private final Button backBtn = new Button("Back");
@@ -57,6 +57,7 @@ public class MenuController extends BorderPane {
     }
 
     // update size of nodes
+    @Override
     public void update(double maxWidth, double maxHeight) {
         menu.update(menuWidth(maxWidth), maxHeight);
         cart.update(cartWidth(maxWidth), cartHeight(maxHeight));

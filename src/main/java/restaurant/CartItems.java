@@ -48,7 +48,7 @@ public class CartItems extends VBox {
         for (var item : cartItems) {
             CartItem cartItem = (CartItem) item;
             if (cartItem.getName().equals(inputItem.getName())) {
-                if (cartItem.getQuantity() >= 1)
+                if (cartItem.getQuantity() > 1)
                     cartItem.changeQuantityBy(-1);
                 else {
                     cartItem = (CartItem) cartItems.remove(i);

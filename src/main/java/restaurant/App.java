@@ -54,18 +54,17 @@ public class App extends Application {
 
     private static Parent controller;
     private static ChangeListener<Number> onReisze = (obs, old, newVal) -> {
-        if (controller != null)
-            // eventually this will have to become an interface
-            ((MenuController) controller).update(scene.getWidth(), scene.getHeight());
+        if (controller instanceof Updatable) {
+            ((Updatable) controller).update(scene.getWidth(), scene.getHeight());
+        }
     };
 
     public static void setRoot(String fxml) {
+        // TODO make other controllers updatable
         if (fxml == "menu") {
             controller = new MenuController(scene.getWidth(), scene.getHeight());
             scene.setRoot(controller);
-        }
-
-        else
+        } else
             scene.setRoot(loadFXML(fxml));
     }
 
@@ -74,7 +73,7 @@ public class App extends Application {
             return;
         fxmlLoaders.pop();
         scene.setRoot(getLoader().getRoot());
-        App.getController(Updatable.class).ifPresent(Updatable::update);
+        App.getController(OldUpdatable.class).ifPresent(OldUpdatable::update);
     }
 
     private static FXMLLoader getLoader() {
