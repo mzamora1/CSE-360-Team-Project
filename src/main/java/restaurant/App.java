@@ -3,11 +3,8 @@ package restaurant;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
