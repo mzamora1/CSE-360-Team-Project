@@ -2,29 +2,26 @@ package restaurant;
 
 import javafx.scene.Parent;
 
-public class MenuController extends Controller {
-    private MenuView menu;
+public class LoginController extends Controller {
+    private LoginView login;
 
     @Override
     public void build() {
         // TODO Auto-generated method stub
-        menu = new MenuView();
+        login = new LoginView();
+
     }
 
     @Override
     public void update(double maxWidth, double maxHeight) {
         // TODO Auto-generated method stub
-        menu.update(maxWidth, maxHeight);
+        login.update(maxWidth, maxHeight);
     }
 
     @Override
     public Parent getRoot() {
         // TODO Auto-generated method stub
-        if (App.user.isAdmin())
-            menu.addAdminAbilities();
-        else
-            menu.removeAdminAbilities();
-        return menu;
+        return login;
     }
 
 }

@@ -18,15 +18,16 @@ public class CartItems extends VBox {
 
     private void build() {
         setAlignment(Pos.TOP_CENTER);
+        cartItems.setAll(App.cartItems);
     }
 
     public void update(double maxWidth, double maxHeight) {
         setPrefWidth(maxWidth);
         setPrefHeight(maxHeight);
-        cartItems.setAll(App.cartItems);
         cartItems.forEach(item -> {
             ((CartItem) item).update(maxWidth);
         });
+
     }
 
     public CartItem addToCart(Item inputItem) {
@@ -40,6 +41,7 @@ public class CartItems extends VBox {
         var newCartItem = new CartItem(getWidth(),
                 inputItem.getName(), inputItem.getPrice(), 1);
         cartItems.add(newCartItem);
+        App.cartItems.add(newCartItem);
         return newCartItem;
     }
 
@@ -52,6 +54,7 @@ public class CartItems extends VBox {
                     cartItem.changeQuantityBy(-1);
                 else {
                     cartItem = (CartItem) cartItems.remove(i);
+                    App.cartItems.remove(i);
                 }
                 return Optional.of(cartItem);
             }

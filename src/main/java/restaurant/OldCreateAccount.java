@@ -4,8 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 
-public class CreateAccount {
-    public CreateAccount() {
+public class OldCreateAccount {
+    public OldCreateAccount() {
     }
 
     @FXML

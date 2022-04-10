@@ -21,15 +21,16 @@ public class CartItem extends HBox implements Item {
         update(maxWidth);
     }
 
-    public CartItem build() {
+    private CartItem build() {
         setAlignment(Pos.TOP_CENTER);
         // setStyle("-fx-border-color: black");
         nameLabel.setWrapText(true);
         nameLabel.setTextAlignment(TextAlignment.CENTER);
         // nameLabel.setStyle("-fx-border-color: blue");
         priceLabel.setWrapText(true);
+        priceLabel.setAlignment(Pos.TOP_CENTER);
         priceLabel.setTextAlignment(TextAlignment.CENTER);
-        // priceLabel.setStyle("-fx-border-color: red");
+        priceLabel.setStyle("-fx-border-color: red");
         HBox.setHgrow(priceLabel, Priority.ALWAYS);
         quantityLabel.setWrapText(true);
         quantityLabel.setAlignment(Pos.TOP_CENTER);
@@ -44,7 +45,7 @@ public class CartItem extends HBox implements Item {
     public void update(double maxWidth) {
         setMaxWidth(maxWidth);
         nameLabel.setMaxWidth(maxWidth * .50);
-        priceLabel.setMaxWidth(maxWidth * .25);
+        priceLabel.setPrefWidth(maxWidth * .25);
         quantityLabel.setMaxWidth(maxWidth * .25);
     }
 

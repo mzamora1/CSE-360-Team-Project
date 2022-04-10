@@ -5,11 +5,10 @@ import java.util.Optional;
 import javafx.scene.control.ScrollPane;
 
 public class Cart extends ScrollPane {
-    private final CartItems cartItems;
+    private final CartItems cartItems = new CartItems();
 
     public Cart() {
         super();
-        cartItems = new CartItems();
         build();
     }
 
@@ -18,8 +17,6 @@ public class Cart extends ScrollPane {
     }
 
     public void update(double maxWidth, double maxHeight) {
-        // setPrefWidth(maxWidth);
-        // setPrefHeight(maxHeight);
         cartItems.update(maxWidth, maxHeight);
     }
 

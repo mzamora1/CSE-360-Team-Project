@@ -42,6 +42,21 @@ public class Menu extends ScrollPane {
         menuItems.removeAdminAbilities();
     }
 
+    // both of these methods go around MenuItems
+    // instead they directly modify its underlying Observable list
+    public boolean remove(Object item) {
+        if (menuItems.getChildren().remove(item)) {
+            return App.menuItems.remove(item);
+        }
+        return false;
+    }
+
+    // allows non menu items to be added to the menu
+    public void add(Item item) {
+        menuItems.getChildren().add((Node) item);
+        App.menuItems.add((Node) item);
+    }
+
     public void setOnAddToCart(EventHandler<ActionEvent> val) {
         menuItems.setOnAddToCart(val);
     }
@@ -56,17 +71,6 @@ public class Menu extends ScrollPane {
 
     public void setOnStartNewMenuItem(EventHandler<ActionEvent> val) {
         menuItems.setOnStartNewMenuItem(val);
-    }
-
-    // both of these methods go around MenuItems
-    // instead they directly modify its underlying Observable list
-    public boolean remove(Object item) {
-        return menuItems.getChildren().remove(item);
-    }
-
-    // allows non menu items to be added to the menu
-    public void add(Node item) {
-        menuItems.getChildren().add(item);
     }
 
 }

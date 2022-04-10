@@ -7,7 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
-public class MenuItemInput extends VBox {
+public class MenuItemInput extends VBox implements Item {
     private final TextField nameInput = new TextField();
     private final Button openImageChooserBtn = new Button("Choose an image");
     private final TextField descriptInput = new TextField();
