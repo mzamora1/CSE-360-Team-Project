@@ -1,7 +1,5 @@
 package restaurant.menu;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import restaurant.App;
@@ -69,22 +67,6 @@ public class Menu extends ScrollPane {
 
     public void clear() {
         menuItems.getChildren().clear();
-    }
-
-    public void setOnAddToCart(EventHandler<ActionEvent> val) {
-        menuItems.setOnAddToCart(val);
-    }
-
-    public void setOnRemoveFromCart(EventHandler<ActionEvent> val) {
-        menuItems.setOnRemoveFromCart(val);
-    }
-
-    public void setOnRemoveFromMenu(EventHandler<ActionEvent> val) {
-        menuItems.setOnRemoveFromMenu(val);
-    }
-
-    public void setOnStartNewMenuItem(EventHandler<ActionEvent> val) {
-        menuItems.setOnStartNewMenuItem(val);
     }
 
 }

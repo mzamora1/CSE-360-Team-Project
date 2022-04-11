@@ -3,9 +3,7 @@ package restaurant.menu;
 import java.util.List;
 
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -101,38 +99,6 @@ public class MenuItems extends VBox {
         }
     }
 
-    // MenuItems should not know anything about the cart
-    // this is the responsiblity of the caller (Controller)
-    public void setOnAddToCart(EventHandler<ActionEvent> val) {
-        for (var item : menuItems) {
-            App.safeCast(MenuItem.class, item).ifPresent(menuItem -> {
-                menuItem.setOnAddToCart(val);
-            });
-        }
-    }
-
-    public void setOnRemoveFromCart(EventHandler<ActionEvent> val) {
-        for (var item : menuItems) {
-            App.safeCast(MenuItem.class, item).ifPresent(menuItem -> {
-                menuItem.setOnRemoveFromCart(val);
-            });
-        }
-    }
-
-    // Both of following methods could be implemented in this class but it
-    // allows more flexibility by doing it this way
-    public void setOnStartNewMenuItem(EventHandler<ActionEvent> val) {
-        startNewItemBtn.setOnAction(val);
-    }
-
-    public void setOnRemoveFromMenu(EventHandler<ActionEvent> val) {
-        for (var item : menuItems) {
-            App.safeCast(MenuItem.class, item).ifPresent(menuItem -> {
-                menuItem.setOnRemoveFromMenu(val);
-            });
-        }
-    }
-
     private boolean hasAdminAbilities() {
         return App.safeCast(MenuItem.class, menuItems.get(menuItems.size() - 1)).isEmpty();
     }
@@ -144,6 +110,12 @@ public class MenuItems extends VBox {
         for (var item : menuItems) {
             App.safeCast(MenuItem.class, item).ifPresent(MenuItem::addAdminAbilities);
         }
+        startNewItemBtn.setOnAction(event -> {
+            var newItemEvent = new MenuEvent(this, this, MenuEvent.START_NEW_ITEM);
+            fireEvent(newItemEvent);
+            if (newItemEvent.isConsumed())
+                event.consume();
+        });
         menuItems.add(startNewItemBtn);
         return true;
     }

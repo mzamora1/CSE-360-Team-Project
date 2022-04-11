@@ -53,8 +53,8 @@ public class MenuView extends BorderPane {
         setRight(right);
         right.setAlignment(Pos.TOP_CENTER);
         searchBar.textProperty().addListener(this::onSearch);
-        menu.setOnAddToCart(this::onAddToCart);
-        menu.setOnRemoveFromCart(this::onRemoveFromCart);
+        addEventFilter(MenuEvent.ADD_TO_CART, this::onAddToCart);
+        addEventFilter(MenuEvent.REMOVE_FROM_CART, this::onRemoveFromCart);
         checkoutBtn.setOnAction(this::onCheckout);
     }
 
@@ -79,10 +79,11 @@ public class MenuView extends BorderPane {
 
     // add elements to the screen that only admins can use
     public boolean addAdminAbilities() {
-        var result = menu.addAdminAbilities();
-        menu.setOnRemoveFromMenu(this::onRemoveFromMenu);
-        menu.setOnStartNewMenuItem(this::onStartNewMenuItem);
-        return result;
+        if (!menu.addAdminAbilities())
+            return false;
+        addEventFilter(MenuEvent.REMOVE_FROM_MENU, this::onRemoveFromMenu);
+        addEventFilter(MenuEvent.START_NEW_ITEM, this::onStartNewMenuItem);
+        return true;
     }
 
     public void removeAdminAbilities() {
@@ -112,7 +113,7 @@ public class MenuView extends BorderPane {
 
     private <T extends Event> void onAddToCart(T event) {
         event.consume();
-        var item = (Item) event.getSource();
+        var item = (Item) event.getTarget();
         cart.addToCart(item);
         changeTotalPriceBy(item.getPrice());
         // App.cartItems.add((Node) item);
@@ -120,7 +121,7 @@ public class MenuView extends BorderPane {
 
     private <T extends Event> void onRemoveFromCart(T event) {
         event.consume();
-        var item = cart.removeFromCart((Item) event.getSource());
+        var item = cart.removeFromCart((Item) event.getTarget());
         item.ifPresent(cartItem -> {
             changeTotalPriceBy(-cartItem.getPrice());
             // App.cartItems.remove(cartItem);
@@ -142,7 +143,7 @@ public class MenuView extends BorderPane {
     }
 
     private <T extends Event> void onStartNewMenuItem(T event) {
-        var startNewMenuItemBtn = event.getSource();
+        var startNewMenuItemBtn = event.getTarget();
         var itemInput = new MenuItemInput();
         itemInput.setOnOpenImageChooser(MenuView::onOpenImageChooser);
         itemInput.setOnCreateMenuItem(e -> {
@@ -150,7 +151,8 @@ public class MenuView extends BorderPane {
                 return;
             menu.remove(itemInput);
             var newItem = new MenuItem(
-                    this::onAddToCart, this::onRemoveFromCart, this::onRemoveFromMenu, menuWidth(getWidth()))
+                    // this::onAddToCart, this::onRemoveFromCart, this::onRemoveFromMenu,
+                    menuWidth(getWidth()))
                     .setName(itemInput.getName())
                     .setDescription(itemInput.getDescription())
                     .setImage(choosenFile)
@@ -165,8 +167,8 @@ public class MenuView extends BorderPane {
 
     private <T extends Event> void onRemoveFromMenu(T event) {
         event.consume();
-        if (!menu.remove(event.getSource())) {
-            System.err.println("could not remove '" + event.getSource() + "' from the menu");
+        if (!menu.remove(event.getTarget())) {
+            System.err.println("could not remove '" + event.getTarget() + "' from the menu");
         }
     }
 

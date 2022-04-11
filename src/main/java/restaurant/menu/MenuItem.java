@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
@@ -53,17 +53,11 @@ public class MenuItem extends VBox implements Item {
     }
 
     // admin constructor
-    public MenuItem(EventHandler<ActionEvent> onAddToCart,
-            EventHandler<ActionEvent> onRemoveFromCart,
-            EventHandler<ActionEvent> onRemoveFromMenu,
-            double maxWidth) {
+    public MenuItem(double maxWidth) {
         super(10);
         build();
         update(maxWidth);
         addAdminAbilities();
-        setOnAddToCart(onAddToCart);
-        setOnRemoveFromCart(onRemoveFromCart);
-        setOnRemoveFromMenu(onRemoveFromMenu);
     }
 
     public MenuItem build() {
@@ -85,6 +79,8 @@ public class MenuItem extends VBox implements Item {
                 new Group(ingredientsLabel),
                 buttonContainer);
 
+        addToCartBtn.setOnAction(eventFirer(MenuEvent.ADD_TO_CART));
+        rmvFromCartBtn.setOnAction(eventFirer(MenuEvent.REMOVE_FROM_CART));
         return this;
     }
 
@@ -109,6 +105,7 @@ public class MenuItem extends VBox implements Item {
         if (hasAdminAbilities())
             return false;
         Button rmvFromMenuBtn = new Button("Remove From Menu");
+        rmvFromMenuBtn.setOnAction(eventFirer(MenuEvent.REMOVE_FROM_MENU));
         buttonContainer.getChildren().add(rmvFromMenuBtn);
         return true;
     }
@@ -120,35 +117,14 @@ public class MenuItem extends VBox implements Item {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends Event> EventHandler<T> handler(EventHandler<T> onAction) {
+    private <T extends Event> EventHandler<T> eventFirer(EventType<MenuEvent> type) {
         return event -> {
-            // TODO be able to fire custom event types
-            // 'this' as source, event.target as target
-            var thisEvent = ((T) event.copyFor(this, event.getTarget()));
-            onAction.handle(thisEvent);
-            if (thisEvent.isConsumed())
+            var menuEvent = new MenuEvent(this, this, type);
+            fireEvent(menuEvent);
+            if (menuEvent.isConsumed()) {
                 event.consume();
+            }
         };
-    }
-
-    public MenuItem setOnAddToCart(EventHandler<ActionEvent> val) {
-        addToCartBtn.setOnAction(handler(val));
-        return this;
-    }
-
-    public MenuItem setOnRemoveFromCart(EventHandler<ActionEvent> val) {
-        rmvFromCartBtn.setOnAction(handler(val));
-        return this;
-    }
-
-    public MenuItem setOnRemoveFromMenu(EventHandler<ActionEvent> val) {
-        if (hasAdminAbilities()) {
-            ((Button) buttonContainer.getChildren().get(ADMIN_LENGTH - 1))
-                    .setOnAction(handler(val));
-            return this;
-        }
-        throw new RuntimeException("cannot set RemoveFromMenu handler without admin abilities");
     }
 
     public String getName() {

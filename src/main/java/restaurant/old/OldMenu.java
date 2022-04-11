@@ -160,8 +160,8 @@ public class OldMenu implements Initializable, OldUpdatable {
                 return true;
             }
             var menuItem = optMenuItem.get();
-            menuItem.setOnAddToCart(this::onAddToCart);
-            menuItem.setOnRemoveFromCart(this::onRemoveFromCart);
+            // menuItem.setOnAddToCart(this::onAddToCart);
+            // menuItem.setOnRemoveFromCart(this::onRemoveFromCart);
             menuItem.update(menuContainer.getPrefWidth());
             return false;
         });
@@ -239,7 +239,7 @@ public class OldMenu implements Initializable, OldUpdatable {
             App.safeCast(MenuItem.class, item)
                     .ifPresent(menuItem -> {
                         menuItem.addAdminAbilities();
-                        menuItem.setOnRemoveFromMenu(this::onRemoveFromMenu);
+                        // menuItem.setOnRemoveFromMenu(this::onRemoveFromMenu);
                     });
         }
         Button addMenuItemBtn = new Button("New Item");
@@ -276,8 +276,9 @@ public class OldMenu implements Initializable, OldUpdatable {
             if (choosenFile == null)
                 return;
             menuItems.remove(itemInput);
-            var newItem = new MenuItem(this::onAddToCart,
-                    this::onRemoveFromCart, this::onRemoveFromMenu, menuContainer.getPrefWidth())
+            var newItem = new MenuItem(
+                    // this::onAddToCart, this::onRemoveFromCart, this::onRemoveFromMenu,
+                    menuContainer.getPrefWidth())
                     .setName(itemInput.getName())
                     .setDescription(itemInput.getDescription())
                     .setImage(choosenFile)
