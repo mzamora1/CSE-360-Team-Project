@@ -6,9 +6,10 @@ public class BackButton extends Button {
     public BackButton() {
         super("Back");
         setOnAction(event -> {
-            var goBackEvent = new AppEvent(this, event.getTarget(), AppEvent.GO_BACK);
+            var goBackEvent = new AppEvent(AppEvent.BEFORE_GO_BACK);
             fireEvent(goBackEvent);
             App.onGoBack(event);
+            event.consume();
         });
     }
 }

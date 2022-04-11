@@ -98,7 +98,7 @@ public class CheckoutView extends BorderPane {
 
     public void update(double maxWidth, double maxHeight) {
         center.setMaxWidth(maxWidth * 0.75);
-        cart.update(maxWidth * 0.75, center.getHeight());
+        cart.update(maxWidth * 0.75, maxHeight * .5);
     }
 
     private void setPeopleInLine() {

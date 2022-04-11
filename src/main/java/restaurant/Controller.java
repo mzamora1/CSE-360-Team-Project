@@ -2,6 +2,7 @@ package restaurant;
 
 import javafx.scene.Parent;
 
+// TODO use custom events instead of Controller
 // These methods will be called by the App when switching scenes
 public abstract class Controller implements Updatable {
     public Controller() {

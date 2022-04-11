@@ -9,10 +9,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import restaurant.App;
+import restaurant.AppEvent;
 
 public class MenuItems extends VBox {
     private final ObservableList<Node> menuItems;
-    private final Button startNewItemBtn = new Button("New Item");
 
     public MenuItems() {
         super(30);
@@ -110,12 +110,8 @@ public class MenuItems extends VBox {
         for (var item : menuItems) {
             App.safeCast(MenuItem.class, item).ifPresent(MenuItem::addAdminAbilities);
         }
-        startNewItemBtn.setOnAction(event -> {
-            var newItemEvent = new MenuEvent(this, this, MenuEvent.START_NEW_ITEM);
-            fireEvent(newItemEvent);
-            if (newItemEvent.isConsumed())
-                event.consume();
-        });
+        Button startNewItemBtn = new Button("New Item");
+        startNewItemBtn.setOnAction(AppEvent.firer(new MenuEvent(MenuEvent.START_NEW_ITEM), this));
         menuItems.add(startNewItemBtn);
         return true;
     }

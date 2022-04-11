@@ -20,12 +20,12 @@ public class CartItems extends VBox {
 
     private void build() {
         setAlignment(Pos.TOP_CENTER);
-        cartItems.setAll(App.cartItems);
     }
 
     public void update(double maxWidth, double maxHeight) {
         setPrefWidth(maxWidth);
-        setPrefHeight(maxHeight);
+        setMaxHeight(maxHeight);
+        cartItems.setAll(App.cartItems);
         cartItems.forEach(item -> {
             ((CartItem) item).update(maxWidth);
         });

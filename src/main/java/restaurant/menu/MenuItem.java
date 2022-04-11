@@ -4,9 +4,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
@@ -17,7 +14,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import restaurant.App;
+import restaurant.AppEvent;
 import restaurant.Item;
+import restaurant.cart.CartEvent;
 
 // MenuItem is a simple wrapper around a VBox that contains all the information of a MenuItem
 // it does not know about any other views or controllers
@@ -79,8 +78,8 @@ public class MenuItem extends VBox implements Item {
                 new Group(ingredientsLabel),
                 buttonContainer);
 
-        addToCartBtn.setOnAction(eventFirer(MenuEvent.ADD_TO_CART));
-        rmvFromCartBtn.setOnAction(eventFirer(MenuEvent.REMOVE_FROM_CART));
+        addToCartBtn.setOnAction(AppEvent.firer(new CartEvent(CartEvent.ADD_TO_CART), this));
+        rmvFromCartBtn.setOnAction(AppEvent.firer(new CartEvent(CartEvent.REMOVE_FROM_CART), this));
         return this;
     }
 
@@ -105,7 +104,7 @@ public class MenuItem extends VBox implements Item {
         if (hasAdminAbilities())
             return false;
         Button rmvFromMenuBtn = new Button("Remove From Menu");
-        rmvFromMenuBtn.setOnAction(eventFirer(MenuEvent.REMOVE_FROM_MENU));
+        rmvFromMenuBtn.setOnAction(AppEvent.firer(new MenuEvent(MenuEvent.REMOVE_FROM_MENU), this));
         buttonContainer.getChildren().add(rmvFromMenuBtn);
         return true;
     }
@@ -115,16 +114,6 @@ public class MenuItem extends VBox implements Item {
             return false;
         buttonContainer.getChildren().remove(ADMIN_LENGTH - 1);
         return true;
-    }
-
-    private <T extends Event> EventHandler<T> eventFirer(EventType<MenuEvent> type) {
-        return event -> {
-            var menuEvent = new MenuEvent(this, this, type);
-            fireEvent(menuEvent);
-            if (menuEvent.isConsumed()) {
-                event.consume();
-            }
-        };
     }
 
     public String getName() {

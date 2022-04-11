@@ -42,7 +42,7 @@ public class Menu extends ScrollPane {
         menuItems.removeAdminAbilities();
     }
 
-    // both of these methods go around MenuItems
+    // all of these methods go around MenuItems
     // instead they directly modify its underlying Observable list
     public boolean remove(Object item) {
         if (menuItems.getChildren().remove(item)) {

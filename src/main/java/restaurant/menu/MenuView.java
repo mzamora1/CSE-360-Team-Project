@@ -20,6 +20,7 @@ import restaurant.App;
 import restaurant.BackButton;
 import restaurant.Item;
 import restaurant.cart.Cart;
+import restaurant.cart.CartEvent;
 import restaurant.checkout.CheckoutController;
 
 public class MenuView extends BorderPane {
@@ -33,7 +34,7 @@ public class MenuView extends BorderPane {
     private final AnchorPane top = new AnchorPane();
     private final Label priceTotal = new Label("Total Price: $0");
     private final Button checkoutBtn = new Button("Checkout");
-    private final VBox right = new VBox(cart, priceTotal, checkoutBtn);
+    private final VBox right = new VBox(new Label("Cart"), cart, priceTotal, checkoutBtn);
 
     public MenuView() {
         super();
@@ -51,10 +52,12 @@ public class MenuView extends BorderPane {
         setTop(top);
         setCenter(menu);
         setRight(right);
-        right.setAlignment(Pos.TOP_CENTER);
+        right.setSpacing(10);
+        right.setAlignment(Pos.CENTER);
         searchBar.textProperty().addListener(this::onSearch);
-        addEventFilter(MenuEvent.ADD_TO_CART, this::onAddToCart);
-        addEventFilter(MenuEvent.REMOVE_FROM_CART, this::onRemoveFromCart);
+        addEventFilter(CartEvent.ADD_TO_CART, this::onAddToCart);
+        addEventFilter(CartEvent.REMOVE_FROM_CART, this::onRemoveFromCart);
+
         checkoutBtn.setOnAction(this::onCheckout);
     }
 
@@ -131,6 +134,7 @@ public class MenuView extends BorderPane {
     private static File choosenFile;
 
     private static <T extends Event> void onOpenImageChooser(T event) {
+        event.consume();
         var chooser = new FileChooser();
         List<String> validExts = new ArrayList<>(List.of("*.bmp", "*.gif", "*.jpeg", "*.png"));
         validExts.addAll(validExts.stream().map(String::toUpperCase)
@@ -143,6 +147,7 @@ public class MenuView extends BorderPane {
     }
 
     private <T extends Event> void onStartNewMenuItem(T event) {
+        event.consume();
         var startNewMenuItemBtn = event.getTarget();
         var itemInput = new MenuItemInput();
         itemInput.setOnOpenImageChooser(MenuView::onOpenImageChooser);
@@ -173,7 +178,7 @@ public class MenuView extends BorderPane {
     }
 
     private <T extends Event> void onCheckout(T event) {
-        // System.out.println("not implemented");
+        event.consume();
         App.setRoot(new CheckoutController());
     }
 
