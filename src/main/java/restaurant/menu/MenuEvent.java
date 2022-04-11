@@ -8,7 +8,6 @@ public class MenuEvent extends AppEvent {
 
     public MenuEvent(EventType<? extends Event> type) {
         super(type);
-        // TODO Auto-generated constructor stub
     }
 
     private static final long serialVersionUID = 69;

@@ -8,7 +8,6 @@ public class CartEvent extends AppEvent {
 
     public CartEvent(EventType<? extends Event> arg0) {
         super(arg0);
-        // TODO Auto-generated constructor stub
     }
 
     private static final long serialVersionUID = 66876389;
