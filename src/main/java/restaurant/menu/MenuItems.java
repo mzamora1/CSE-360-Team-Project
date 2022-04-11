@@ -111,7 +111,7 @@ public class MenuItems extends VBox {
             App.safeCast(MenuItem.class, item).ifPresent(MenuItem::addAdminAbilities);
         }
         Button startNewItemBtn = new Button("New Item");
-        startNewItemBtn.setOnAction(AppEvent.firer(new MenuEvent(MenuEvent.START_NEW_ITEM), this));
+        startNewItemBtn.setOnAction(AppEvent.firer(new MenuEvent(MenuEvent.START_NEW_ITEM), startNewItemBtn));
         menuItems.add(startNewItemBtn);
         return true;
     }

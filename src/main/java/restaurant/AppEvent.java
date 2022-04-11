@@ -7,8 +7,8 @@ import javafx.event.EventType;
 
 public class AppEvent extends Event {
 
-    public AppEvent(EventType<? extends Event> arg0) {
-        super(arg0);
+    public AppEvent(EventType<? extends Event> type) {
+        super(type);
     }
 
     public static <T extends Event, E extends AppEvent> EventHandler<T> firer(E event, EventTarget target) {
