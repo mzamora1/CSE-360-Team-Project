@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.old;
 
 import java.io.File;
 import java.net.URL;
@@ -22,6 +22,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import restaurant.App;
+import restaurant.cart.CartItem;
+import restaurant.menu.MenuItem;
+import restaurant.menu.MenuItemInput;
 
 @Deprecated(since = "MenuController became resizeable")
 public class OldMenu implements Initializable, OldUpdatable {

@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.menu;
 
 import java.io.File;
 import java.util.Arrays;
@@ -16,6 +16,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import restaurant.App;
+import restaurant.Item;
 
 // MenuItem is a simple wrapper around a VBox that contains all the information of a MenuItem
 // it does not know about any other views or controllers

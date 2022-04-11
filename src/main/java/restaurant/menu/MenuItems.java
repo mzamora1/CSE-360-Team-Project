@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.menu;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+import restaurant.App;
 
 public class MenuItems extends VBox {
     private final ObservableList<Node> menuItems;

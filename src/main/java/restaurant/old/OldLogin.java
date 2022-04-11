@@ -1,8 +1,10 @@
-package restaurant;
+package restaurant.old;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import restaurant.App;
+import restaurant.users.GuestUser;
 
 public class OldLogin {
     public OldLogin() {

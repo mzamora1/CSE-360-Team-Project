@@ -1,8 +1,10 @@
-package restaurant;
+package restaurant.old;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import restaurant.App;
+import restaurant.users.Customer;
 
 public class OldCreateAccount {
     public OldCreateAccount() {

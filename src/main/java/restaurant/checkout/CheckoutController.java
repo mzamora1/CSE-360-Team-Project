@@ -1,27 +1,28 @@
-package restaurant;
+package restaurant.checkout;
 
 import javafx.scene.Parent;
+import restaurant.Controller;
 
-public class CreateAccountController extends Controller {
+public class CheckoutController extends Controller {
 
-    private CreateAccountView createAccount;
+    private CheckoutView checkout;
 
     @Override
     public void build() {
         // TODO Auto-generated method stub
-        createAccount = new CreateAccountView();
+        checkout = new CheckoutView();
     }
 
     @Override
     public void update(double maxWidth, double maxHeight) {
         // TODO Auto-generated method stub
-        createAccount.update(maxWidth, maxHeight);
+        checkout.update(maxWidth, maxHeight);
     }
 
     @Override
     public Parent getRoot() {
         // TODO Auto-generated method stub
-        return createAccount;
+        return checkout;
     }
 
 }

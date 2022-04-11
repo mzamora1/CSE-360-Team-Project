@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.menu;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import restaurant.Item;
 
 public class MenuItemInput extends VBox implements Item {
     private final TextField nameInput = new TextField();

@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.cart;
 
 import java.util.Optional;
 
@@ -6,6 +6,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
+import restaurant.App;
+import restaurant.Item;
 
 public class CartItems extends VBox {
     private final ObservableList<Node> cartItems;

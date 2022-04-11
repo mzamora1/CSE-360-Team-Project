@@ -7,6 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import restaurant.login.LoginController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,6 @@ public class App extends Application {
 
     private static Stage stage;
     private static Scene scene;
-    // private static final Stack<FXMLLoader> fxmlLoaders = new Stack<>();
     private static final Stack<Controller> controllers = new Stack<>();
 
     public static User user;
@@ -41,9 +41,7 @@ public class App extends Application {
         var startController = new LoginController();
         controllers.push(startController);
         startController.build();
-        // will be called when onResize is added
-        // startController.update(stage.getWidth(), stage.getHeight());
-        // scene = new Scene(loadFXML("login"), 640, 480);
+        // update will be called when onResize is added
         scene = new Scene(startController.getRoot(), 640, 480);
 
         stage.getIcons().add(new Image(App.class.getResourceAsStream("alfredologo.PNG")));

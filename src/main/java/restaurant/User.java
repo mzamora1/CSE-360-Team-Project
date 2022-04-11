@@ -1,5 +1,8 @@
 package restaurant;
 
+import restaurant.users.Customer;
+import restaurant.users.GuestUser;
+
 public class User {
 
 	private String name;

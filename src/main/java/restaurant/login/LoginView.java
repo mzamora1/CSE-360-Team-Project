@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.login;
 
 import javafx.event.Event;
 import javafx.geometry.Pos;
@@ -7,6 +7,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import restaurant.App;
+import restaurant.createAccount.CreateAccountController;
+import restaurant.menu.MenuController;
+import restaurant.users.GuestUser;
 
 public class LoginView extends BorderPane {
     private final TextField usernameField = new TextField();

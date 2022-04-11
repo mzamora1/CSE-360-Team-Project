@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.old;
 
 import java.net.URL;
 import java.util.List;
@@ -13,13 +13,16 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.VBox;
+import restaurant.App;
+import restaurant.cart.CartItem;
+import restaurant.users.Customer;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 // import static restaurant.Menu.mypriceTotal;
 
-public class Checkout implements Initializable {
-	public Checkout() {
+public class OldCheckout implements Initializable {
+	public OldCheckout() {
 	}
 
 	// random numbers for ppl + expected waiting time

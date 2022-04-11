@@ -1,11 +1,11 @@
-package restaurant;
+package restaurant.cart;
 
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.text.TextAlignment;
+import restaurant.Item;
 
 public class CartItem extends HBox implements Item {
     private final Label nameLabel = new Label();
@@ -22,31 +22,48 @@ public class CartItem extends HBox implements Item {
     }
 
     private CartItem build() {
-        setAlignment(Pos.TOP_CENTER);
+        // setAlignment(Pos.TOP_CENTER);
         // setStyle("-fx-border-color: black");
         nameLabel.setWrapText(true);
         nameLabel.setTextAlignment(TextAlignment.CENTER);
+        nameLabel.setAlignment(Pos.CENTER);
         // nameLabel.setStyle("-fx-border-color: blue");
         priceLabel.setWrapText(true);
         priceLabel.setAlignment(Pos.TOP_CENTER);
         priceLabel.setTextAlignment(TextAlignment.CENTER);
-        priceLabel.setStyle("-fx-border-color: red");
-        HBox.setHgrow(priceLabel, Priority.ALWAYS);
+        // priceLabel.setStyle("-fx-border-color: red");
+        // HBox.setHgrow(priceLabel, Priority.ALWAYS);
         quantityLabel.setWrapText(true);
         quantityLabel.setAlignment(Pos.TOP_CENTER);
         quantityLabel.setTextAlignment(TextAlignment.CENTER);
         // quantityLabel.setStyle("-fx-border-color: green");
-        HBox.setHgrow(quantityLabel, Priority.ALWAYS);
+        // HBox.setHgrow(quantityLabel, Priority.ALWAYS);
         getChildren().setAll(
                 new Group(nameLabel), new Group(priceLabel), quantityLabel);
         return this;
     }
 
+    private double nameWidth(double maxWidth) {
+        return maxWidth * 0.5;
+    }
+
+    private double priceWidth(double maxWidth) {
+        return maxWidth * 0.25;
+    }
+
+    private double quantityWidth(double maxWidth) {
+        return maxWidth * 0.25;
+    }
+
     public void update(double maxWidth) {
         setMaxWidth(maxWidth);
-        nameLabel.setMaxWidth(maxWidth * .50);
-        priceLabel.setPrefWidth(maxWidth * .25);
-        quantityLabel.setMaxWidth(maxWidth * .25);
+        nameLabel.setMaxWidth(nameWidth(maxWidth));
+        nameLabel.setPrefWidth(nameWidth(maxWidth));
+        priceLabel.setMaxWidth(priceWidth(maxWidth));
+        priceLabel.setPrefWidth(priceWidth(maxWidth));
+
+        quantityLabel.setMaxWidth(quantityWidth(maxWidth));
+        quantityLabel.setPrefWidth(quantityWidth(maxWidth));
     }
 
     public String getName() {

@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.old;
 
 @FunctionalInterface
 public interface OldUpdatable {

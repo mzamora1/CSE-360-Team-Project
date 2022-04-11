@@ -1,8 +1,9 @@
-package restaurant;
+package restaurant.cart;
 
 import java.util.Optional;
 
 import javafx.scene.control.ScrollPane;
+import restaurant.Item;
 
 public class Cart extends ScrollPane {
     private final CartItems cartItems = new CartItems();

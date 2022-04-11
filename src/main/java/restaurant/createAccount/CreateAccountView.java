@@ -1,4 +1,4 @@
-package restaurant;
+package restaurant.createAccount;
 
 import javafx.event.Event;
 import javafx.geometry.Pos;
@@ -9,6 +9,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import restaurant.App;
+import restaurant.BackButton;
+import restaurant.login.LoginController;
+import restaurant.users.Customer;
 
 public class CreateAccountView extends BorderPane {
 

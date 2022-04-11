@@ -1,4 +1,6 @@
-package restaurant;
+package restaurant.users;
+
+import restaurant.User;
 
 public class Customer extends User {
 
