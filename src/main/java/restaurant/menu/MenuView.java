@@ -119,16 +119,15 @@ public class MenuView extends BorderPane {
         var item = (Item) event.getTarget();
         cart.addToCart(item);
         changeTotalPriceBy(item.getPrice());
-        // App.cartItems.add((Node) item);
     }
 
     private <T extends Event> void onRemoveFromCart(T event) {
         event.consume();
         var item = cart.removeFromCart((Item) event.getTarget());
-        item.ifPresent(cartItem -> {
-            changeTotalPriceBy(-cartItem.getPrice());
-            // App.cartItems.remove(cartItem);
-        });
+        if (item.isPresent())
+            changeTotalPriceBy(-item.get().getPrice());
+        else
+            System.err.println("could not remove '" + event.getTarget() + "' from the cart");
     }
 
     private static File choosenFile;
@@ -155,9 +154,7 @@ public class MenuView extends BorderPane {
             if (choosenFile == null)
                 return;
             menu.remove(itemInput);
-            var newItem = new MenuItem(
-                    // this::onAddToCart, this::onRemoveFromCart, this::onRemoveFromMenu,
-                    menuWidth(getWidth()))
+            var newItem = new MenuItem(menuWidth(getWidth()))
                     .setName(itemInput.getName())
                     .setDescription(itemInput.getDescription())
                     .setImage(choosenFile)
