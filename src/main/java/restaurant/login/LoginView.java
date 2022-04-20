@@ -33,7 +33,9 @@ public class LoginView extends BorderPane {
 
     private void build() {
         usernameField.setPromptText("username");
+        usernameField.setId("username");
         passwordField.setPromptText("password");
+        passwordField.setId("password");
         setCenter(container);
         container.setAlignment(Pos.CENTER);
         container.setSpacing(10);
@@ -41,6 +43,8 @@ public class LoginView extends BorderPane {
         createAccountBtn.setOnAction(this::onCreateAccount);
         guestBtn.setOnAction(this::onContinueAsGuest);
         loginBtn.setOnAction(this::onLogin);
+        loginBtn.setId("loginBtn");
+
     }
 
     public void update(double maxWidth, double maxHeight) {

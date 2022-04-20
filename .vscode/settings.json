@@ -1,3 +1,10 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.test.config": {
+        "name": "Default Test Config",
+        "vmArgs": [
+            "--add-exports",
+            "javafx.graphics/com.sun.javafx.application=ALL-UNNAMED"
+        ]
+    }
 }
