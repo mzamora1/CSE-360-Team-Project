@@ -98,6 +98,8 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.4</version>
+                <!-- For code coverage reports -->
+                <!-- mvn jacoco:prepare-agent test install jacoco:report -->
                 <executions>
                     <execution>
                         <goals>

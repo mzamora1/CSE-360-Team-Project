@@ -1,0 +1,3 @@
+
+# Runs all tests in project and generates a code coverage report
+mvn jacoco:prepare-agent test install jacoco:report --quiet >&1 2>&1
