@@ -5,6 +5,9 @@
         "vmArgs": [
             "--add-exports",
             "javafx.graphics/com.sun.javafx.application=ALL-UNNAMED"
+        ],
+        "args": [
+            "mvn jacoco:prepare-agent test install jacoco:report"
         ]
     }
 }
