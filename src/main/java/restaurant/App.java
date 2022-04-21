@@ -50,6 +50,10 @@ public class App extends Application {
         stage.widthProperty().addListener(onResize);
         stage.setScene(scene);
         stage.show();
+        stage.addEventFilter(SceneEvent.CHANGE_SCENE, event -> {
+            event.consume();
+            App.setRoot(event.controller);
+        });
     }
 
     public static Stage getStage() {

@@ -8,6 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import restaurant.App;
+import restaurant.SceneEvent;
 import restaurant.createAccount.CreateAccountController;
 import restaurant.menu.MenuController;
 import restaurant.users.GuestUser;
@@ -58,19 +59,22 @@ public class LoginView extends BorderPane {
     }
 
     private <T extends Event> void onCreateAccount(T event) {
-        App.setRoot(new CreateAccountController());
+        event.consume();
+        fireEvent(new SceneEvent(SceneEvent.CHANGE_SCENE, new CreateAccountController()));
     }
 
     private <T extends Event> void onContinueAsGuest(T event) {
+        event.consume();
         App.user = new GuestUser();
         App.cartItems.clear();
-        App.setRoot(new MenuController());
+        fireEvent(new SceneEvent(SceneEvent.CHANGE_SCENE, new MenuController()));
     }
 
     private <T extends Event> void onLogin(T event) {
+        event.consume();
         if (!usernameField.getText().isEmpty() && !passwordField.getText().isEmpty()) {
             if (checkLogin()) {
-                App.setRoot(new MenuController());
+                fireEvent(new SceneEvent(SceneEvent.CHANGE_SCENE, new MenuController()));
             }
         }
     }

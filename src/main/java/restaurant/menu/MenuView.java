@@ -7,8 +7,10 @@ import java.util.stream.Collectors;
 
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -21,6 +23,7 @@ import restaurant.BackButton;
 import restaurant.Item;
 import restaurant.cart.Cart;
 import restaurant.cart.CartEvent;
+import restaurant.cart.CartItem;
 import restaurant.checkout.CheckoutController;
 
 public class MenuView extends BorderPane {
@@ -35,6 +38,8 @@ public class MenuView extends BorderPane {
     private final Label priceTotal = new Label("Total Price: $0");
     private final Button checkoutBtn = new Button("Checkout");
     private final VBox right = new VBox(new Label("Cart"), cart, priceTotal, checkoutBtn);
+    private final CheckBox couponCheckBox = new CheckBox("Apply Coupon");
+    private final VBox bottom = new VBox(couponCheckBox);
 
     public MenuView() {
         super();
@@ -52,6 +57,9 @@ public class MenuView extends BorderPane {
         setTop(top);
         setCenter(menu);
         setRight(right);
+        bottom.setAlignment(Pos.CENTER);
+        bottom.setPadding(new Insets(20));
+        setBottom(bottom);
         right.setSpacing(10);
         right.setAlignment(Pos.CENTER);
         searchBar.textProperty().addListener(this::onSearch);
@@ -59,6 +67,7 @@ public class MenuView extends BorderPane {
         addEventFilter(CartEvent.REMOVE_FROM_CART, this::onRemoveFromCart);
 
         checkoutBtn.setOnAction(this::onCheckout);
+        couponCheckBox.setOnAction(this::onApplyCoupon);
     }
 
     private double menuWidth(double maxWidth) {
@@ -171,6 +180,21 @@ public class MenuView extends BorderPane {
         event.consume();
         if (!menu.remove(event.getTarget())) {
             System.err.println("could not remove '" + event.getTarget() + "' from the menu");
+        }
+    }
+
+    private <T extends Event> void onApplyCoupon(T event) {
+        event.consume();
+        float couponPrice = -5f;
+        var coupon = new CartItem(cart.getPrefWidth(), "coupon", couponPrice, 1);
+        if (couponCheckBox.isSelected() && totalPrice() > -couponPrice) {
+            cart.addToCart(coupon);
+            changeTotalPriceBy(couponPrice);
+        } else {
+            couponCheckBox.setSelected(false);
+            cart.removeFromCart(coupon).ifPresent(c -> {
+                changeTotalPriceBy(-c.getPrice());
+            });
         }
     }
 
