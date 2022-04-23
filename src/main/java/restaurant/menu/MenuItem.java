@@ -107,13 +107,9 @@ public class MenuItem extends VBox implements Item {
         if (hasAdminAbilities())
             return false;
         Button rmvFromMenuBtn = new Button("Remove From Menu");
-        rmvFromMenuBtn.getStyleClass().add(".removeFromMenuBtn");
+        rmvFromMenuBtn.getStyleClass().add("removeFromMenuBtn");
         rmvFromMenuBtn.setOnAction(AppEvent.firer(new MenuEvent(MenuEvent.REMOVE_FROM_MENU), this));
-        try {
-            buttonContainer.getChildren().add(rmvFromMenuBtn);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        buttonContainer.getChildren().add(rmvFromMenuBtn);
 
         return true;
     }

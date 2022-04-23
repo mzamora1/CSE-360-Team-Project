@@ -1,12 +1,9 @@
 package restaurant.menu;
 
 import org.testfx.framework.junit.ApplicationTest;
-import org.testfx.util.WaitForAsyncUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -25,6 +22,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.testfx.api.FxToolkit;
 
 import javafx.event.EventHandler;
+import javafx.geometry.HorizontalDirection;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
@@ -35,8 +33,6 @@ import restaurant.App;
 import restaurant.SceneEvent;
 import restaurant.cart.CartEvent;
 import restaurant.checkout.CheckoutController;
-import restaurant.users.Customer;
-import restaurant.users.GuestUser;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MenuViewTest extends ApplicationTest {
@@ -51,32 +47,27 @@ public class MenuViewTest extends ApplicationTest {
 
     @Override
     public void start(Stage stage) throws Exception {
-        scene = new Scene(new Label("loading..."), 640, 480);
-        scene.addEventFilter(SceneEvent.CHANGE_SCENE, onChangeScenes);
-        scene.addEventFilter(CartEvent.ADD_TO_CART, onAddToCart);
-        scene.addEventFilter(CartEvent.REMOVE_FROM_CART, onRemoveFromCart);
+        stage.setWidth(640);
+        stage.setHeight(640);
+        scene = new Scene(new Label("loading..."));
+        stage.addEventFilter(SceneEvent.CHANGE_SCENE, onChangeScenes);
+        stage.addEventFilter(CartEvent.ADD_TO_CART, onAddToCart);
+        stage.addEventFilter(CartEvent.REMOVE_FROM_CART, onRemoveFromCart);
         stage.setScene(scene);
         stage.show();
         stage.toFront();
+
+        // FxToolkit.registerStage(() -> stage);
     }
 
     @Before
     public void setUp() throws Exception {
-        // this.view = new MenuView();
-        // this.view.update(scene.getWidth(), scene.getHeight());
-        // scene.setRoot(this.view);
-    }
-
-    private void setRoot(boolean startAdmin) {
-        this.view = new MenuView();
-        this.view.update(scene.getWidth(), scene.getHeight());
-        if (startAdmin)
+        FxToolkit.setupSceneRoot(() -> {
+            this.view = new MenuView();
+            this.view.update(scene.getWidth(), scene.getHeight());
             this.view.addAdminAbilities();
-        scene.setRoot(this.view);
-    }
-
-    private void setRoot() {
-        setRoot(false);
+            return this.view;
+        });
     }
 
     @After
@@ -91,16 +82,14 @@ public class MenuViewTest extends ApplicationTest {
     }
 
     @Test
-    public void testAddToCart() {
-        App.user = new GuestUser();
+    public void testAddToCart() throws InterruptedException {
         var addToCartEvent = ArgumentCaptor.forClass(CartEvent.class);
-
-        setRoot();
         clickOn("#menu");
-        scroll(8, VerticalDirection.DOWN);
+        scroll(3, VerticalDirection.DOWN);
         clickOn(".addToCartBtn");
         verify(onAddToCart, times(1)).handle(addToCartEvent.capture());
-        assertEquals(addToCartEvent.getValue().getTarget().getClass(), MenuItem.class);
+        assertEquals(addToCartEvent.getValue().getTarget().getClass(),
+                MenuItem.class);
         assertFalse(App.menuItems.isEmpty());
         assertEquals(App.cartItems.size(), 1);
         assertEquals(view.totalPrice(), ((MenuItem) App.menuItems.get(0)).getPrice(), .0002);
@@ -109,11 +98,9 @@ public class MenuViewTest extends ApplicationTest {
 
     @Test
     public void testRemoveFromCart() {
-        App.user = new GuestUser();
         var removeFromCartEvent = ArgumentCaptor.forClass(CartEvent.class);
-        setRoot();
         clickOn("#menu");
-        scroll(8, VerticalDirection.DOWN);
+        scroll(3, VerticalDirection.DOWN);
         clickOn(".addToCartBtn");
         clickOn(".removeFromCartBtn");
         verify(onRemoveFromCart, times(1)).handle(removeFromCartEvent.capture());
@@ -126,9 +113,7 @@ public class MenuViewTest extends ApplicationTest {
 
     @Test
     public void testSearchBar() {
-        String searchText = "spa";
-        App.user = new GuestUser();
-        setRoot();
+        String searchText = "fet";
         var originalSize = App.menuItems.size();
         clickOn("#searchBar");
         write(searchText);
@@ -144,10 +129,8 @@ public class MenuViewTest extends ApplicationTest {
     @Test
     public void testAddToMenu() throws InterruptedException {
         String name = "n", description = "d", ingredients = "s,s", price = "6";
-        setRoot(true);
-
         var menu = (ScrollPane) view.lookup("#menu");
-        clickOn(menu);
+
         menu.setVvalue(1);
         clickOn("#startMenuItemBtn");
 
@@ -177,22 +160,17 @@ public class MenuViewTest extends ApplicationTest {
 
     @Test
     public void testRemoveFromMenu() throws InterruptedException, ExecutionException {
-        setRoot(true);
         assertFalse(App.menuItems.isEmpty());
         var originalSize = App.menuItems.size();
         var menu = (ScrollPane) view.lookup("#menu");
         clickOn(menu);
-        scroll(8, VerticalDirection.DOWN);
-
-        // TODO fix this somehow
-        // this works if you test it manually not sure why this fails during test
-        // clickOn((".removeFromMenuBtn"));
-        // assertEquals(originalSize - 1, App.menuItems.size());
+        scroll(3, VerticalDirection.DOWN);
+        clickOn((".removeFromMenuBtn"));
+        assertEquals(originalSize - 1, App.menuItems.size());
     }
 
     @Test
     public void testApplyCoupon() {
-        setRoot();
         clickOn("#menu");
         scroll(8, VerticalDirection.DOWN);
         var couponCheckBox = (CheckBox) view.lookup("#couponCheckBox");
@@ -215,7 +193,6 @@ public class MenuViewTest extends ApplicationTest {
     @Test
     public void testGoToCheckout() {
         var changeSceneEvent = ArgumentCaptor.forClass(SceneEvent.class);
-        setRoot();
         clickOn("#checkoutBtn");
         // TODO only allow checkout if cart has something something
         // verify(onChangeScenes, times(0)).handle(changeSceneEvent.capture());
