@@ -61,6 +61,7 @@ public class MenuItem extends VBox implements Item {
 
     public MenuItem build() {
         setAlignment(Pos.CENTER);
+        getStyleClass().add("menuItem");
         buttonContainer.setAlignment(Pos.CENTER);
 
         descriptionLabel.setWrapText(true);
@@ -79,7 +80,9 @@ public class MenuItem extends VBox implements Item {
                 buttonContainer);
 
         addToCartBtn.setOnAction(AppEvent.firer(new CartEvent(CartEvent.ADD_TO_CART), this));
+        addToCartBtn.getStyleClass().add("addToCartBtn");
         rmvFromCartBtn.setOnAction(AppEvent.firer(new CartEvent(CartEvent.REMOVE_FROM_CART), this));
+        rmvFromCartBtn.getStyleClass().add("removeFromCartBtn");
         return this;
     }
 
@@ -104,8 +107,14 @@ public class MenuItem extends VBox implements Item {
         if (hasAdminAbilities())
             return false;
         Button rmvFromMenuBtn = new Button("Remove From Menu");
+        rmvFromMenuBtn.getStyleClass().add(".removeFromMenuBtn");
         rmvFromMenuBtn.setOnAction(AppEvent.firer(new MenuEvent(MenuEvent.REMOVE_FROM_MENU), this));
-        buttonContainer.getChildren().add(rmvFromMenuBtn);
+        try {
+            buttonContainer.getChildren().add(rmvFromMenuBtn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return true;
     }
 

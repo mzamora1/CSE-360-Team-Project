@@ -12,5 +12,6 @@ public class MenuEvent extends AppEvent {
 
     private static final long serialVersionUID = 69;
     public static final EventType<MenuEvent> START_NEW_ITEM = new EventType<>("START_NEW_ITEM");
+    public static final EventType<MenuEvent> ADD_NEW_ITEM = new EventType<>("ADD_NEW_ITEM");
     public static final EventType<MenuEvent> REMOVE_FROM_MENU = new EventType<>("REMOVE_FROM_MENU");
 }

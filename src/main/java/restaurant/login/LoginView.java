@@ -42,7 +42,9 @@ public class LoginView extends BorderPane {
         container.setSpacing(10);
         imageView.setPreserveRatio(true);
         createAccountBtn.setOnAction(this::onCreateAccount);
+        createAccountBtn.setId("createAccountBtn");
         guestBtn.setOnAction(this::onContinueAsGuest);
+        guestBtn.setId("guestBtn");
         loginBtn.setOnAction(this::onLogin);
         loginBtn.setId("loginBtn");
 

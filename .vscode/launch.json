@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "restaurant/restaurant.Main",
+            "projectName": "restaurantapp",
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
@@ -15,7 +22,7 @@
             "name": "Launch App",
             "request": "launch",
             "mainClass": "restaurant/restaurant.App",
-            "projectName": "restaurantapp",
+            "projectName": "restaurantapp"
         }
     ]
 }

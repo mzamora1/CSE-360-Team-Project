@@ -16,6 +16,7 @@ public class Menu extends ScrollPane {
     // construct and layout nodes on screen
     private void build() {
         setContent(menuItems);
+        setId("menu");
     }
 
     // update size of nodes

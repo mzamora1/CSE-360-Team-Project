@@ -11,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import restaurant.App;
 import restaurant.BackButton;
+import restaurant.SceneEvent;
 import restaurant.login.LoginController;
 import restaurant.users.Customer;
 
@@ -39,10 +40,15 @@ public class CreateAccountView extends BorderPane {
 
     private void build() {
         email.setPromptText("email...");
+        email.setId("email");
         password.setPromptText("password...");
+        password.setId("password");
         cardNumber.setPromptText("card number...");
+        cardNumber.setId("cardNumber");
         ccv.setPromptText("ccv");
+        ccv.setId("ccv");
         expiration.setPromptText("ex: (mm/yy)");
+        expiration.setId("expiration");
         container.setAlignment(Pos.CENTER);
         partialCard.setAlignment(Pos.CENTER);
         container.setSpacing(10);
@@ -51,6 +57,7 @@ public class CreateAccountView extends BorderPane {
         setTop(backBtn);
         setCenter(container);
         submitBtn.setOnAction(this::onCreateAccount);
+        submitBtn.setId("submit");
     }
 
     private double inputWidth(double maxWidth) {
@@ -72,7 +79,8 @@ public class CreateAccountView extends BorderPane {
 
             App.user = newUser;
 
-            App.setRoot(new LoginController());
+            // App.setRoot(new LoginController());
+            fireEvent(new SceneEvent(SceneEvent.CHANGE_SCENE, new LoginController()));
         }
     }
 }

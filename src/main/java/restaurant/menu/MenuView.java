@@ -1,10 +1,5 @@
 package restaurant.menu;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.geometry.Insets;
@@ -16,11 +11,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import restaurant.App;
+import restaurant.AppEvent;
 import restaurant.BackButton;
 import restaurant.Item;
+import restaurant.SceneEvent;
 import restaurant.cart.Cart;
 import restaurant.cart.CartEvent;
 import restaurant.cart.CartItem;
@@ -51,6 +46,7 @@ public class MenuView extends BorderPane {
         AnchorPane.setLeftAnchor(backBtn, 10d);
         AnchorPane.setRightAnchor(searchBar, 10d);
         searchBar.setPromptText("search...");
+        searchBar.setId("searchBar");
         // titleContainer.setStyle("-fx-border-color: blue");
         titleContainer.setAlignment(Pos.CENTER);
         top.getChildren().addAll(titleContainer, backBtn, searchBar);
@@ -65,9 +61,11 @@ public class MenuView extends BorderPane {
         searchBar.textProperty().addListener(this::onSearch);
         addEventFilter(CartEvent.ADD_TO_CART, this::onAddToCart);
         addEventFilter(CartEvent.REMOVE_FROM_CART, this::onRemoveFromCart);
-
-        checkoutBtn.setOnAction(this::onCheckout);
+        checkoutBtn.setOnAction(AppEvent
+                .firer(new SceneEvent(SceneEvent.CHANGE_SCENE, new CheckoutController()), this));
+        checkoutBtn.setId("checkoutBtn");
         couponCheckBox.setOnAction(this::onApplyCoupon);
+        couponCheckBox.setId("couponCheckBox");
     }
 
     private double menuWidth(double maxWidth) {
@@ -95,6 +93,7 @@ public class MenuView extends BorderPane {
             return false;
         addEventFilter(MenuEvent.REMOVE_FROM_MENU, this::onRemoveFromMenu);
         addEventFilter(MenuEvent.START_NEW_ITEM, this::onStartNewMenuItem);
+        addEventFilter(MenuEvent.ADD_NEW_ITEM, this::onAddNewMenuItem);
         return true;
     }
 
@@ -139,40 +138,27 @@ public class MenuView extends BorderPane {
             System.err.println("could not remove '" + event.getTarget() + "' from the cart");
     }
 
-    private static File choosenFile;
-
-    private static <T extends Event> void onOpenImageChooser(T event) {
-        event.consume();
-        var chooser = new FileChooser();
-        List<String> validExts = new ArrayList<>(List.of("*.bmp", "*.gif", "*.jpeg", "*.png"));
-        validExts.addAll(validExts.stream().map(String::toUpperCase)
-                .collect(Collectors.toList()));
-
-        chooser.getExtensionFilters().add(
-                new ExtensionFilter("Image files(bmp, gif, jpeg, png)", validExts));
-
-        choosenFile = chooser.showOpenDialog(App.getStage());
-    }
-
     private <T extends Event> void onStartNewMenuItem(T event) {
         event.consume();
         var startNewMenuItemBtn = event.getTarget();
         var itemInput = new MenuItemInput();
-        itemInput.setOnOpenImageChooser(MenuView::onOpenImageChooser);
-        itemInput.setOnCreateMenuItem(e -> {
-            if (choosenFile == null)
-                return;
-            menu.remove(itemInput);
-            var newItem = new MenuItem(menuWidth(getWidth()))
-                    .setName(itemInput.getName())
-                    .setDescription(itemInput.getDescription())
-                    .setImage(choosenFile)
-                    .setIngredients(itemInput.getIngredients())
-                    .setPrice(itemInput.getPrice());
-            menu.add(newItem);
-            menu.add(itemInput);
-        });
         menu.remove(startNewMenuItemBtn);
+        menu.add(itemInput);
+    }
+
+    private <T extends Event> void onAddNewMenuItem(T event) {
+        event.consume();
+        var itemInput = (MenuItemInput) event.getTarget();
+        if (itemInput.getFile().isEmpty())
+            return;
+        menu.remove(itemInput);
+        var newItem = new MenuItem(menuWidth(getWidth()))
+                .setName(itemInput.getName())
+                .setDescription(itemInput.getDescription())
+                .setImage(itemInput.getFile().get())
+                .setIngredients(itemInput.getIngredients())
+                .setPrice(itemInput.getPrice());
+        menu.add(newItem);
         menu.add(itemInput);
     }
 
@@ -183,24 +169,20 @@ public class MenuView extends BorderPane {
         }
     }
 
+    static final float COUPON_PRICE = -5f;
+
     private <T extends Event> void onApplyCoupon(T event) {
         event.consume();
-        float couponPrice = -5f;
-        var coupon = new CartItem(cart.getPrefWidth(), "coupon", couponPrice, 1);
-        if (couponCheckBox.isSelected() && totalPrice() > -couponPrice) {
+        var coupon = new CartItem(cart.getPrefWidth(), "coupon", COUPON_PRICE, 1);
+        if (couponCheckBox.isSelected() && totalPrice() > -COUPON_PRICE) {
             cart.addToCart(coupon);
-            changeTotalPriceBy(couponPrice);
+            changeTotalPriceBy(COUPON_PRICE);
         } else {
             couponCheckBox.setSelected(false);
             cart.removeFromCart(coupon).ifPresent(c -> {
                 changeTotalPriceBy(-c.getPrice());
             });
         }
-    }
-
-    private <T extends Event> void onCheckout(T event) {
-        event.consume();
-        App.setRoot(new CheckoutController());
     }
 
     private void changeTotalPriceBy(float changeAmount) {
@@ -211,7 +193,7 @@ public class MenuView extends BorderPane {
         priceTotal.setText("Total Price: $" + iprice);
     }
 
-    private float totalPrice() {
+    public float totalPrice() {
         String totalText = priceTotal.getText();
         return Float.parseFloat(totalText.substring(totalText.indexOf('$') + 1));
     }

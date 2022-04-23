@@ -1,5 +1,7 @@
 package restaurant.login;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -20,6 +22,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import restaurant.App;
 import restaurant.SceneEvent;
+import restaurant.createAccount.CreateAccountController;
 import restaurant.menu.MenuController;
 import restaurant.users.Customer;
 
@@ -59,7 +62,7 @@ public class LoginViewTest extends ApplicationTest {
     public void testEmptyLogin() {
         var changeSceneEvent = ArgumentCaptor.forClass(SceneEvent.class);
         clickOn(login.lookup("#loginBtn"));
-        assertTrue("User login without account" + App.user, App.user == null);
+        assertNull(App.user);
         verify(onChangeScenes, times(0)).handle(changeSceneEvent.capture());
     }
 
@@ -74,7 +77,37 @@ public class LoginViewTest extends ApplicationTest {
         write(password);
         clickOn(login.lookup("#loginBtn"));
         verify(onChangeScenes, times(1)).handle(changeSceneEvent.capture());
-        assertTrue(changeSceneEvent.getValue().controller instanceof MenuController);
+        assertEquals(changeSceneEvent.getValue().controller.getClass(), MenuController.class);
     }
 
+    @Test
+    public void testInvalidLogin() {
+        String username = "some user", password = "password";
+        App.user = new Customer(username, password, true);
+        var changeSceneEvent = ArgumentCaptor.forClass(SceneEvent.class);
+        clickOn(login.lookup("#username"));
+        write("a");
+        clickOn(login.lookup("#password"));
+        write("a");
+        clickOn(login.lookup("#loginBtn"));
+        verify(onChangeScenes, times(0)).handle(changeSceneEvent.capture());
+    }
+
+    @Test
+    public void testGuestLogin() {
+        var changeSceneEvent = ArgumentCaptor.forClass(SceneEvent.class);
+        clickOn(login.lookup("#guestBtn"));
+        verify(onChangeScenes, times(1)).handle(changeSceneEvent.capture());
+        assertEquals(changeSceneEvent.getValue().controller.getClass(), MenuController.class);
+        assertTrue(App.user.isGuest());
+    }
+
+    @Test
+    public void testGoToCreateAccount() {
+        var changeSceneEvent = ArgumentCaptor.forClass(SceneEvent.class);
+        clickOn(login.lookup("#createAccountBtn"));
+        verify(onChangeScenes, times(1)).handle(changeSceneEvent.capture());
+        assertEquals(changeSceneEvent.getValue().controller.getClass(), CreateAccountController.class);
+        assertNull(App.user);
+    }
 }

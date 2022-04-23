@@ -31,6 +31,7 @@ public class App extends Application {
     private static Scene scene;
     private static final Stack<Controller> controllers = new Stack<>();
 
+    // Database items
     public static User user;
     public static final List<Node> menuItems = new ArrayList<>();
     public static final List<Node> cartItems = new ArrayList<>();
@@ -56,15 +57,11 @@ public class App extends Application {
         });
     }
 
-    public static Stage getStage() {
-        return stage;
-    }
-
     private static final ChangeListener<Number> onResize = (obs, old, newVal) -> {
         getController().update(stage.getWidth(), stage.getHeight());
     };
 
-    public static <T extends Controller> void setRoot(T controller) {
+    private static <T extends Controller> void setRoot(T controller) {
         controllers.push(controller);
         getController().build();
         getController().update(scene.getWidth(), scene.getHeight());
@@ -94,13 +91,13 @@ public class App extends Application {
         scene.setRoot(getController().getRoot());
     }
 
-    public static <T extends Event> void onGoBack(T event) {
+    static <T extends Event> void onGoBack(T event) {
         goBack();
     }
 
     public static void setRoot(String fxml) {
         // scene.setRoot(loadFXML(fxml));
-        throw new RuntimeException("setRoot(String fxml) is deprecated");
+        throw new RuntimeException("setRoot(String fxml) is deprecated, use SceneEvent instead");
     }
 
     // OLD APP LOADER FOR FXML

@@ -4,7 +4,7 @@
         "name": "Default Test Config",
         "vmArgs": [
             "--add-exports",
-            "javafx.graphics/com.sun.javafx.application=ALL-UNNAMED"
+            "javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
         ]
     }
 }

@@ -265,28 +265,28 @@ public class OldMenu implements Initializable, OldUpdatable {
         chooser.getExtensionFilters().add(
                 new ExtensionFilter("Image files(bmp, gif, jpeg, png)", validExts));
 
-        choosenFile = chooser.showOpenDialog(App.getStage());
+        // choosenFile = chooser.showOpenDialog(App.getStage());
     }
 
     private <T extends Event> void onStartNewMenuItem(T event) {
         var addMenuItemBtn = event.getSource();
         var itemInput = new MenuItemInput();
-        itemInput.setOnOpenImageChooser(OldMenu::onOpenImageChooser);
-        itemInput.setOnCreateMenuItem(e -> {
-            if (choosenFile == null)
-                return;
-            menuItems.remove(itemInput);
-            var newItem = new MenuItem(
-                    // this::onAddToCart, this::onRemoveFromCart, this::onRemoveFromMenu,
-                    menuContainer.getPrefWidth())
-                    .setName(itemInput.getName())
-                    .setDescription(itemInput.getDescription())
-                    .setImage(choosenFile)
-                    .setIngredients(itemInput.getIngredients())
-                    .setPrice(itemInput.getPrice());
-            menuItems.add(newItem);
-            menuItems.add(itemInput);
-        });
+        // itemInput.setOnOpenImageChooser(OldMenu::onOpenImageChooser);
+        // itemInput.setOnCreateMenuItem(e -> {
+        // if (choosenFile == null)
+        // return;
+        // menuItems.remove(itemInput);
+        // var newItem = new MenuItem(
+        // // this::onAddToCart, this::onRemoveFromCart, this::onRemoveFromMenu,
+        // menuContainer.getPrefWidth())
+        // .setName(itemInput.getName())
+        // .setDescription(itemInput.getDescription())
+        // .setImage(choosenFile)
+        // .setIngredients(itemInput.getIngredients())
+        // .setPrice(itemInput.getPrice());
+        // menuItems.add(newItem);
+        // menuItems.add(itemInput);
+        // });
         menuItems.remove(addMenuItemBtn);
         menuItems.add(itemInput);
     }

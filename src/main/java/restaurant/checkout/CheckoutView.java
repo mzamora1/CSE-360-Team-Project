@@ -17,6 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import restaurant.App;
 import restaurant.BackButton;
+import restaurant.SceneEvent;
 import restaurant.cart.Cart;
 import restaurant.cart.CartItem;
 import restaurant.menu.MenuController;
@@ -120,6 +121,7 @@ public class CheckoutView extends BorderPane {
 
     private <T extends Event> void onOrder(T event) {
         // alarm window which switched back to menu after pressing confirmation
+        event.consume();
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Place Order?");
         alert.setHeaderText(
@@ -128,7 +130,7 @@ public class CheckoutView extends BorderPane {
                 .filter(response -> response == ButtonType.OK)
                 .ifPresent(response -> {
                     App.cartItems.clear();
-                    App.setRoot(new MenuController());
+                    fireEvent(new SceneEvent(SceneEvent.CHANGE_SCENE, new MenuController()));
                 });
     }
 }
